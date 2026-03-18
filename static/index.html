@@ -1,0 +1,1478 @@
+<!DOCTYPE html>
+<html lang="zh" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UseSkill | AI Agent Skill Meta-Registry</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@300;400;600;800&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --primary: #5865F2;
+            --primary-bg: #0B0F1A;
+            --surface: #1B2233;
+            --text-primary: #FFFFFF;
+            --text-secondary: #94A3B8;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --header-bg: rgba(11, 15, 26, 0.85);
+            --card-hover: #212B45;
+            --accent: #10B981;
+        }
+
+        [data-theme="light"] {
+            --primary: #4F46E5;
+            --primary-bg: #F8FAFC;
+            --surface: #FFFFFF;
+            --text-primary: #0F172A;
+            --text-secondary: #64748B;
+            --border-color: #E2E8F0;
+            --header-bg: rgba(255, 255, 255, 0.9);
+            --card-hover: #F1F5F9;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: all 0.2s ease;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--primary-bg);
+            color: var(--text-primary);
+            transition: background-color 0.3s;
+        }
+
+        h1,
+        h2,
+        h3,
+        .logo {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 40px;
+        }
+
+        /* --- Header --- */
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(12px);
+            background: var(--header-bg);
+            border-bottom: 1px solid var(--border-color);
+            height: 72px;
+            display: flex;
+            align-items: center;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #818CF8, #C084FC);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            cursor: pointer;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 32px;
+            list-style: none;
+        }
+
+        .nav-menu a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 15px;
+        }
+
+        .nav-menu a:hover,
+        .nav-menu a.active {
+            color: var(--primary);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* --- Hero --- */
+        .hero {
+            padding: 80px 0;
+            text-align: center;
+            background: radial-gradient(circle at top, rgba(88, 101, 242, 0.1), transparent);
+        }
+
+        .hero h1 {
+            font-size: 56px;
+            line-height: 1.1;
+            margin-bottom: 24px;
+            letter-spacing: -2px;
+        }
+
+        .hero h1 span {
+            color: var(--primary);
+        }
+
+        .hero p {
+            color: var(--text-secondary);
+            font-size: 18px;
+            max-width: 600px;
+            margin: 0 auto 40px;
+        }
+
+        /* --- Search Bar --- */
+        .search-area {
+            max-width: 800px;
+            margin: -40px auto 40px;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            height: 72px;
+            background: var(--surface);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 0 60px;
+            color: var(--text-primary);
+            font-size: 18px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .search-input:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(88, 101, 242, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 24px;
+            top: 24px;
+            color: var(--text-secondary);
+        }
+
+        /* --- Main Content --- */
+        .main-layout {
+            display: flex;
+            gap: 40px;
+            margin-bottom: 80px;
+        }
+
+        /* --- Filter Tabs --- */
+        .tab-section {
+            margin-bottom: 30px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+        }
+
+        .tab {
+            padding: 8px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            white-space: nowrap;
+            color: var(--text-secondary);
+            font-weight: 500;
+            background: transparent;
+            border: 1px solid transparent;
+        }
+
+        .tab:hover {
+            background: var(--card-hover);
+        }
+
+        .tab.active {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .tab .count {
+            margin-left: 6px;
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+        /* --- Skill Grid --- */
+        .skill-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 24px;
+            width: 100%;
+        }
+
+        /* --- Skill Card --- */
+        .skill-card {
+            background: var(--surface);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            cursor: pointer;
+            position: relative;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .skill-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--primary);
+            background: var(--card-hover);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .source-tag {
+            font-size: 11px;
+            font-weight: 700;
+            color: #fff;
+            padding: 4px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+
+        .source-tag.github {
+            background: rgba(36, 41, 47, 0.1);
+            color: #24292f;
+        }
+
+        .source-tag.smithery {
+            background: #5865f2;
+            color: white;
+        }
+
+        .source-tag.mcp-market {
+            background: #ff4757;
+            color: white;
+        }
+
+        .source-tag.awesome-list {
+            background: #2f3542;
+            color: white;
+        }
+
+        .source-tag.awesome-list {
+            background: #2f3542;
+            color: white;
+        }
+
+        .source-tag.clawhub {
+            background: #E11D48;
+        }
+
+        .source-tag.skills\.sh,
+        .source-tag.skills_sh {
+            background: #6366F1;
+        }
+        
+        .source-tag.skillsmp {
+            background: #14b8a6;
+            color: #fff;
+        }
+
+        .source-tag.smithery {
+            background: rgba(107, 70, 193, 0.1);
+            color: #6f42c1;
+        }
+
+        .source-tag.unknown {
+            background: rgba(108, 117, 125, 0.1);
+            color: #6c757d;
+        }
+
+        .skill-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .skill-author {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+
+        .skill-description {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            margin-bottom: 24px;
+            flex-grow: 1;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .card-stats {
+            display: flex;
+            gap: 16px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 16px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .stat-item.stars {
+            color: #F59E0B;
+        }
+
+        /* --- Ranking Sidebar --- */
+        .sidebar {
+            width: 340px;
+            flex-shrink: 0;
+        }
+
+        .rank-card {
+            background: var(--surface);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+        }
+
+        .rank-header {
+            font-size: 18px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .rank-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            cursor: pointer;
+        }
+
+        .rank-num {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text-secondary);
+            width: 24px;
+            text-align: center;
+        }
+
+        .rank-num.top1 {
+            color: #F59E0B;
+        }
+
+        .rank-item:hover .rank-info h4 {
+            color: var(--primary);
+        }
+
+        .rank-info h4 {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .rank-info p {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* --- Pagination --- */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 60px;
+            margin-bottom: 80px;
+        }
+
+        .btn-page {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: var(--surface);
+            color: var(--text-primary);
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-page:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-page.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* --- Footer --- */
+        footer {
+            background: var(--surface);
+            border-top: 1px solid var(--border-color);
+            padding: 80px 0 40px;
+            color: var(--text-secondary);
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 60px;
+        }
+
+        .footer-logo {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .footer-col h4 {
+            color: var(--text-primary);
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 24px;
+        }
+
+        .footer-col ul {
+            list-style: none;
+        }
+
+        .footer-col li {
+            margin-bottom: 12px;
+        }
+
+        .footer-col a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .footer-col a:hover {
+            color: var(--primary);
+        }
+
+        .footer-bottom {
+            border-top: 1px solid var(--border-color);
+            padding-top: 40px;
+            text-align: center;
+            font-size: 13px;
+        }
+
+        /* --- Theme & Lang Toggle --- */
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .btn-icon {
+            border: 1px solid var(--border-color);
+            background: var(--surface);
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 14px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-icon:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        a.btn-icon {
+            text-decoration: none;
+        }
+
+        .theme-btn {
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 20px;
+        }
+
+        /* Modal */
+        #modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-body {
+            background: var(--surface);
+            width: 100%;
+            max-width: 640px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 40px 48px 48px;
+            border-radius: 24px;
+            border: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            right: 24px;
+            top: 24px;
+            font-size: 22px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+        }
+        .modal-close:hover {
+            background: rgba(0,0,0,0.05);
+            color: var(--text-primary);
+        }
+        .modal-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        .modal-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, var(--primary), #7c3aed);
+            color: #fff;
+            font-size: 24px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .modal-title-wrap {
+            flex: 1;
+            min-width: 0;
+        }
+        .modal-title-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .modal-title {
+            font-size: 24px;
+            font-weight: 800;
+            margin: 0;
+        }
+        .modal-badge {
+            font-size: 12px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            font-weight: 600;
+        }
+        .modal-slug {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+        .modal-tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin: 16px 0;
+        }
+        .modal-tag {
+            font-size: 12px;
+            padding: 6px 12px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .modal-tag.source {
+            background: rgba(88, 101, 242, 0.1);
+            color: var(--primary);
+        }
+        .modal-tag.download {
+            background: rgba(245, 158, 11, 0.15);
+            color: #d97706;
+        }
+        .modal-desc {
+            color: var(--text-secondary);
+            line-height: 1.7;
+            font-size: 15px;
+            margin-bottom: 20px;
+        }
+        .modal-source-attribution {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+            line-height: 1.6;
+        }
+        .modal-source-attribution a {
+            color: var(--primary);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .modal-source-attribution a:hover {
+            text-decoration: underline;
+        }
+        .modal-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 28px;
+        }
+        .modal-stat-card {
+            background: rgba(88, 101, 242, 0.06);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+        }
+        .modal-stat-card .num {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+        .modal-stat-card .label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+        .modal-tab-section {
+            margin-bottom: 24px;
+        }
+        .modal-tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 16px;
+        }
+        .modal-tab {
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+        }
+        .modal-tab.active {
+            background: rgba(88, 101, 242, 0.15);
+            color: var(--primary);
+        }
+        .modal-tab:hover:not(.active) {
+            background: rgba(0,0,0,0.05);
+        }
+        .modal-install-block {
+            background: rgba(88, 101, 242, 0.05);
+            border: 1px dashed var(--primary);
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 12px;
+            position: relative;
+        }
+        .modal-install-block .hint {
+            font-size: 12px;
+            color: var(--primary);
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        .modal-install-block .code {
+            font-family: monospace;
+            font-size: 14px;
+            word-break: break-all;
+            color: var(--text-primary);
+        }
+        .modal-install-block .copy-btn {
+            position: absolute;
+            right: 16px;
+            top: 16px;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+            background: var(--surface);
+            color: var(--text-primary);
+        }
+        .modal-install-block .copy-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        .modal-compat {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+            flex-wrap: wrap;
+        }
+        .modal-btn {
+            flex: 1;
+            min-width: 120px;
+            height: 48px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border: none;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        .modal-btn-primary {
+            background: var(--primary);
+            color: #fff;
+        }
+        .modal-btn-primary:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+        .modal-btn-outline {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+        .modal-btn-outline:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="container header-content">
+            <div class="logo" onclick="window.location.reload()">UseSkill</div>
+            <ul class="nav-menu">
+                <!-- <li><a href="#" class="active">广场</a></li> -->
+                <!-- <li><a href="#">开发者</a></li> -->
+                <!-- <li><a href="#">关于</a></li> -->
+            </ul>
+            <div class="header-actions">
+                <a href="https://github.com/CurvatureLab/agent-skills-hub" target="_blank" rel="noopener noreferrer" class="btn-icon" title="GitHub" aria-label="GitHub">
+                    <svg width="22" height="22" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.463-1.11-1.463-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12c0-5.523-4.477-10-10-10z"/></svg>
+                </a>
+                <button class="btn-icon" id="langToggle">
+                    <span id="langText">EN</span>
+                </button>
+                <button class="theme-btn" id="themeToggle">🌓</button>
+                <button class="btn-primary" data-i18n="integrate_now">立即集成</button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="container">
+                <h1 data-i18n="hero_title">发现您的 <span>AI Agent</span> 技能</h1>
+                <p data-i18n="hero_subtitle">连接全球顶尖 Agent 技能库。无论您是需要金融分析、网页爬取还是社交自动化，都可以在这里一键发现并集成。</p>
+            </div>
+        </section>
+
+        <div class="container">
+            <div class="search-area">
+                <svg class="search-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2.5">
+                    <circle cx="11" cy="11" r="8" />
+                    <path d="m21 21-4.3-4.3" />
+                </svg>
+                <input type="text" class="search-input" id="searchInput" data-i18n-placeholder="search_placeholder"
+                    placeholder="搜索 100,000+ 技能，例如 'data', 'finance'...">
+            </div>
+
+            <div class="tab-section" id="categoryTabs">
+                <!-- Tabs will be rendered here -->
+            </div>
+
+            <div class="main-layout">
+                <div class="skill-grid" id="skillGrid">
+                    <!-- Cards will be here -->
+                </div>
+
+                <aside class="sidebar">
+                    <div class="rank-card">
+                        <div class="rank-header"><span style="margin-right:8px">🔥</span> <span
+                                data-i18n="rank_header">热度排行榜</span></div>
+                        <div id="topRankList">
+                            <!-- Top 10 items -->
+                        </div>
+                    </div>
+                </aside>
+            </div>
+
+            <div class="pagination" id="pagination">
+                <!-- Page numbers -->
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <span class="footer-logo">UseSkill</span>
+                    <p style="margin-bottom: 30px" data-i18n="footer_desc">全球领先的 AI Agent 技能聚合索引协议。致力于打破技能孤岛，实现 Agent
+                        能力的即插即用。</p>
+                    <div style="display: flex; gap: 20px">
+                        <a href="#"><svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                                <path
+                                    d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.463-1.11-1.463-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12c0-5.523-4.477-10-10-10z" />
+                            </svg></a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h4 data-i18n="footer_platform">平台</h4>
+                    <ul>
+                        <li><a href="#" data-i18n="footer_skill_list">技能列表</a></li>
+                        <li><a href="#" data-i18n="footer_contribute">贡献技能</a></li>
+                        <li><a href="#" data-i18n="footer_review_standards">审核标准</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4 data-i18n="footer_developers">开发者</h4>
+                    <ul>
+                        <li><a href="#" data-i18n="footer_api_docs">API 文档</a></li>
+                        <li><a href="#" data-i18n="footer_sdk">SDK 工具</a></li>
+                        <li><a href="#" data-i18n="footer_mount_examples">挂载示例</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4 data-i18n="footer_support">支持</h4>
+                    <ul>
+                        <li><a href="#" data-i18n="footer_help_center">帮助中心</a></li>
+                        <li><a href="#" data-i18n="footer_feedback">反馈建议</a></li>
+                        <li><a href="#" data-i18n="footer_community">社区讨论</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom" data-i18n="footer_copyright">&copy; 2026 Skill Meta-Registry. Powered by UseSkill & Global Community.</div>
+        </div>
+    </footer>
+
+    <div id="modal" onclick="closeModal()">
+        <div class="modal-body" onclick="event.stopPropagation()">
+            <span class="modal-close" onclick="closeModal()">&times;</span>
+            <div class="modal-header">
+                <div class="modal-icon" id="mIcon">S</div>
+                <div class="modal-title-wrap">
+                    <div class="modal-title-row">
+                        <h2 class="modal-title" id="mTitle"></h2>
+                        <span class="modal-badge" id="mFeaturedBadge" style="display: none;">精选</span>
+                    </div>
+                    <div class="modal-slug" id="mSlug"></div>
+                </div>
+            </div>
+            <div class="modal-tags" id="mTags">
+                <span class="modal-tag source" id="mSourceTag"></span>
+                <span class="modal-tag download" id="mDownloadTag" style="display: none;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                    <span id="mDownloadTagText">加速下载可用</span>
+                </span>
+            </div>
+            <p class="modal-desc" id="mDesc"></p>
+            <div class="modal-source-attribution" id="mSourceAttribution">
+                <span id="mSourceAttributionText"></span><a id="mSourceLink" href="#" target="_blank" rel="noopener noreferrer" style="display: none;"><span id="mSourceLinkText"></span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg></a>
+            </div>
+            <div class="modal-stats">
+                <div class="modal-stat-card">
+                    <div class="num" id="mStatDownloads">0</div>
+                    <div class="label" id="mStatDownloadsLabel">下载量</div>
+                </div>
+                <div class="modal-stat-card">
+                    <div class="num" id="mStatStars">0</div>
+                    <div class="label" id="mStatStarsLabel">收藏</div>
+                </div>
+                <div class="modal-stat-card">
+                    <div class="num" id="mStatInstalls">0</div>
+                    <div class="label" id="mStatInstallsLabel">安装量</div>
+                </div>
+            </div>
+            <div class="modal-tab-section">
+                <div class="modal-tabs">
+                    <button type="button" class="modal-tab active" data-tab="agent" id="mTabAgent">我是 Agent</button>
+                    <button type="button" class="modal-tab" data-tab="human" id="mTabHuman">我是 Human</button>
+                </div>
+                <div id="mTabAgentContent">
+                    <div class="modal-install-block">
+                        <div class="hint" id="mAgentHint">将此提示发送给你的 Agent，以安装此技能</div>
+                        <div class="code" id="mAgentCode"></div>
+                        <button type="button" class="copy-btn" id="mAgentCopyBtn">复制</button>
+                    </div>
+                </div>
+                <div id="mTabHumanContent" style="display: none;">
+                    <div class="modal-install-block">
+                        <div class="hint" id="mHumanHint">复制以下安装命令，在终端或 CLI 中执行</div>
+                        <div class="code" id="mHumanCode"></div>
+                        <button type="button" class="copy-btn" id="mHumanCopyBtn">复制</button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <a id="mDownloadBtn" class="modal-btn modal-btn-primary" href="#" target="_blank" rel="noopener noreferrer" style="display: none;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                    <span id="mDownloadBtnText">直接下载</span>
+                </a>
+                <button class="modal-btn modal-btn-outline" onclick="closeModal()" id="mCloseBtn">我明白了</button>
+            </div>
+            <div class="modal-compat" id="mCompat">适用于 Claude、ChatGPT、Cursor 等任何 AI 助手。</div>
+        </div>
+    </div>
+
+    <script>
+        let currentQuery = "";
+        let currentCategory = "all";
+        let currentPage = 1;
+        const limit = 12;
+        let currentLang = localStorage.getItem('lang') || 'zh';
+
+        const i18n = {
+            zh: {
+                integrate_now: "立即集成",
+                hero_title: "发现您的 <span>AI Agent</span> 技能",
+                hero_subtitle: "连接全球顶尖 Agent 技能库。无论您是需要金融分析、网页爬取还是社交自动化，都可以在这里一键发现并集成。",
+                search_placeholder: "搜索 100,000+ 技能，例如 'data', 'finance'...",
+                rank_header: "热度排行榜",
+                footer_desc: "全球领先的 AI Agent 技能聚合索引协议。致力于打破技能孤岛，实现 Agent 能力的即插即用。",
+                all_skills: "全部",
+                skills_count_suffix: "技能",
+                installs_suffix: "次安装",
+                scanning: "正在扫描本地数据库...",
+                no_results: "未获得匹配技能。",
+                fetch_error: "服务器连接失败，请检查后端运行状态。",
+                total_suffix: "条",
+                total_prefix: "共",
+                understand: "我明白了",
+                install_cmd: "安装命令",
+                loading: "正在加载...",
+                lang_btn: "EN",
+                view_source: "前往源地址",
+                direct_download: "直接下载",
+                copy_install_cmd: "复制安装命令",
+                featured: "精选",
+                source_from: "该技能数据来源于",
+                author_is: "，作者是",
+                view_details_at: "，详情可查看",
+                downloads_count: "下载量",
+                favorites: "收藏",
+                installs_count: "安装量",
+                install_for_agent: "将此提示发送给你的 Agent，以安装此技能",
+                install_for_human: "复制以下安装命令，在终端或 CLI 中执行",
+                copy: "复制",
+                copied: "已复制",
+                i_am_agent: "我是 Agent",
+                i_am_human: "我是 Human",
+                compat_text: "适用于 Claude、ChatGPT、Cursor 等任何 AI 助手。",
+                fast_download: "加速下载可用",
+                footer_platform: "平台",
+                footer_skill_list: "技能列表",
+                footer_contribute: "贡献技能",
+                footer_review_standards: "审核标准",
+                footer_developers: "开发者",
+                footer_api_docs: "API 文档",
+                footer_sdk: "SDK 工具",
+                footer_mount_examples: "挂载示例",
+                footer_support: "支持",
+                footer_help_center: "帮助中心",
+                footer_feedback: "反馈建议",
+                footer_community: "社区讨论",
+                footer_copyright: "© 2026 Skill Meta-Registry. Powered by UseSkill & Global Community."
+            },
+            en: {
+                integrate_now: "Integrate Now",
+                hero_title: "Discover Your <span>AI Agent</span> Skills",
+                hero_subtitle: "Connect to world-class Agent skill registries. Whether you need financial analysis, web scraping, or social automation, discover and integrate them with one click.",
+                search_placeholder: "Search 100,000+ skills, e.g. 'data', 'finance'...",
+                rank_header: "Popularity Ranking",
+                footer_desc: "Global leading AI Agent skill aggregation protocol. Committed to breaking skill silos and achieving plug-and-play for Agent capabilities.",
+                all_skills: "All",
+                skills_count_suffix: "skills",
+                installs_suffix: "installs",
+                scanning: "Scanning local database...",
+                no_results: "No matching skills found.",
+                fetch_error: "Server connection failed, please check backend status.",
+                total_suffix: "items",
+                total_prefix: "Total",
+                understand: "Got it",
+                install_cmd: "Install URI",
+                loading: "Loading...",
+                lang_btn: "中文",
+                view_source: "View Source",
+                direct_download: "Download",
+                copy_install_cmd: "Copy Install URI",
+                featured: "Featured",
+                source_from: "This skill data comes from ",
+                author_is: ", author is ",
+                view_details_at: ", details at ",
+                downloads_count: "Downloads",
+                favorites: "Favorites",
+                installs_count: "Installs",
+                install_for_agent: "Send this to your Agent to install this skill",
+                install_for_human: "Copy and run the following command in terminal or CLI",
+                copy: "Copy",
+                copied: "Copied",
+                i_am_agent: "I am Agent",
+                i_am_human: "I am Human",
+                compat_text: "Works with Claude, ChatGPT, Cursor and any AI assistants.",
+                fast_download: "Accelerated download available",
+                footer_platform: "Platform",
+                footer_skill_list: "Skill List",
+                footer_contribute: "Contribute",
+                footer_review_standards: "Review Standards",
+                footer_developers: "Developers",
+                footer_api_docs: "API Docs",
+                footer_sdk: "SDK Tools",
+                footer_mount_examples: "Mount Examples",
+                footer_support: "Support",
+                footer_help_center: "Help Center",
+                footer_feedback: "Feedback",
+                footer_community: "Community",
+                footer_copyright: "© 2026 Skill Meta-Registry. Powered by UseSkill & Global Community."
+            }
+        };
+
+        function updateUI() {
+            // Text elements
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (i18n[currentLang][key]) {
+                    el.innerHTML = i18n[currentLang][key];
+                }
+            });
+            // Placeholders
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-i18n-placeholder');
+                if (i18n[currentLang][key]) {
+                    el.setAttribute('placeholder', i18n[currentLang][key]);
+                }
+            });
+            // Button text
+            document.getElementById('langText').innerText = i18n[currentLang].lang_btn;
+        }
+
+        async function init() {
+            updateUI();
+            setupLangToggle();
+            loadCategoryTabs();
+            loadTop100();
+            fetchSkills();
+            setupTheme();
+        }
+
+        function setupLangToggle() {
+            document.getElementById('langToggle').onclick = () => {
+                currentLang = currentLang === 'zh' ? 'en' : 'zh';
+                localStorage.setItem('lang', currentLang);
+                updateUI();
+                loadCategoryTabs(); // Refresh counts and labels
+                fetchSkills();      // Refresh pagination text
+                loadTop100();       // Refresh ranking stats
+            };
+        }
+
+        const categoryMeta = {
+            "all": { label: "全部技能", icon: "💎" },
+            "clawhub": { label: "ClawHub", icon: "🦞" },
+            "skills.sh": { label: "Skills.sh", icon: "🚀" },
+            "smithery": { label: "Smithery", icon: "🛠️" },
+            "mcp-market": { label: "Market", icon: "🛒" },
+            "skillsmp": { label: "SkillsMP", icon: "🌊" },
+            "github": { label: "GitHub", icon: "󰊤" },
+            "awesome-list": { label: "Awesome", icon: "🌟" }
+        };
+
+        async function loadCategoryTabs() {
+            const container = document.getElementById('categoryTabs');
+            try {
+                const res = await fetch('/api/v1/skills/categories');
+                const data = await res.json();
+
+                container.innerHTML = data.map(cat => {
+                    const meta = categoryMeta[cat.name] || { label: cat.name, icon: "" };
+                    let label = (cat.name === 'all') ? i18n[currentLang].all_skills : meta.label;
+                    return `
+                        <button class="tab ${cat.name === currentCategory ? 'active' : ''}" 
+                                onclick="selectCategory(this, '${cat.name}')">
+                            ${label} ${meta.icon} <span class="count">${cat.count.toLocaleString()} ${i18n[currentLang].skills_count_suffix}</span>
+                        </button>
+                    `;
+                }).join('');
+            } catch (e) {
+                console.error("LoadCategories error:", e);
+            }
+        }
+
+        function selectCategory(el, cat) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            el.classList.add('active');
+            currentCategory = cat;
+            currentPage = 1;
+            fetchSkills();
+        }
+
+        async function fetchSkills() {
+            const skillGrid = document.getElementById('skillGrid');
+            skillGrid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 100px; color: var(--text-secondary)">${i18n[currentLang].scanning}</div>`;
+
+            try {
+                const offset = (currentPage - 1) * limit;
+                const url = `/api/v1/skills/search?query=${encodeURIComponent(currentQuery)}&category=${currentCategory}&limit=${limit}&offset=${offset}`;
+                const res = await fetch(url);
+                const data = await res.json();
+
+                if (data && data.results) {
+                    renderSkills(data.results);
+                    renderPagination(data.total);
+                } else {
+                    console.error("Invalid data format:", data);
+                    skillGrid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 100px; color: var(--text-secondary)">${i18n[currentLang].no_results}</div>`;
+                }
+            } catch (e) {
+                console.error("Fetch error:", e);
+                skillGrid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 100px; color: var(--text-secondary)">${i18n[currentLang].fetch_error}</div>`;
+            }
+        }
+
+        async function loadTop100() {
+            const list = document.getElementById('topRankList');
+            try {
+                const res = await fetch('/api/v1/skills/top100');
+                const data = await res.json();
+                list.innerHTML = data.slice(0, 20).map((s, i) => `
+                    <div class="rank-item" onclick="openModal(${JSON.stringify(s).replace(/"/g, '&quot;')})">
+                        <div class="rank-num ${i === 0 ? 'top1' : ''}">${i + 1}</div>
+                        <div class="rank-info">
+                            <h4>${s.name}</h4>
+                            <p>${(s.metrics?.downloads || 0).toLocaleString()} ${i18n[currentLang].installs_suffix}</p>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (e) {
+                console.error("LoadTop100 error:", e);
+            }
+        }
+
+        function renderSkills(skills) {
+            const grid = document.getElementById('skillGrid');
+            if (skills.length === 0) {
+                grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 100px; color: var(--text-secondary)">${i18n[currentLang].no_results}</div>`;
+                return;
+            }
+            try {
+                grid.innerHTML = skills.map(s => {
+                    const sourceIconClass = (s.source?.type || 'unknown').replace(/\./g, '_');
+                    return `
+                        <div class="skill-card" onclick='openModal(${JSON.stringify(s).replace(/'/g, "&apos;")})'>
+                            <div class="card-top">
+                                <span class="source-tag ${sourceIconClass}">${s.source?.type || 'UNKNOWN'}</span>
+                                <span style="font-size: 14px; color: var(--text-secondary)">★ ${s.metrics?.stars || 0}</span>
+                            </div>
+                            <h3 class="skill-title">${s.name}</h3>
+                            <div class="skill-author">by @${s.author}</div>
+                            <p class="skill-description">${s.description || '为您的 Agent 提供即插即用的核心能力扩展。'}</p>
+                            <div class="card-stats">
+                                <div class="stat-item">⬇ ${s.metrics?.downloads || 0} installs</div>
+                                <div class="stat-item">${s.execution_mode || 'N/A'}</div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (e) {
+                console.error("RenderSkills error:", e);
+                grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 100px; color: var(--text-secondary)">渲染失败。</div>';
+            }
+        }
+
+        function renderPagination(total) {
+            const nav = document.getElementById('pagination');
+            const totalPages = Math.ceil(total / limit);
+
+            let html = '';
+
+            // 总条数显示
+            html += `<div style="display: flex; align-items: center; margin-right: 20px; color: var(--text-secondary); font-size: 14px; font-weight: 500;">${i18n[currentLang].total_prefix} ${total} ${i18n[currentLang].total_suffix}</div>`;
+
+            if (totalPages > 1) {
+                // 简单的分页逻辑：如果总页数多，也可以考虑只显示部分页码，目前先实现全动态显示
+                // 按照实际显示的页码，如果页数非常多，这里可以优化为类似 [1, 2, 3, '...', last]
+                const maxVisible = 7;
+                let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+                let endPage = Math.min(totalPages, startPage + maxVisible - 1);
+
+                if (endPage - startPage + 1 < maxVisible) {
+                    startPage = Math.max(1, endPage - maxVisible + 1);
+                }
+
+                if (startPage > 1) {
+                    html += `<button class="btn-page" onclick="changePage(1)">1</button>`;
+                    if (startPage > 2) html += `<span style="color: var(--text-secondary); align-self: center">...</span>`;
+                }
+
+                for (let i = startPage; i <= endPage; i++) {
+                    html += `<button class="btn-page ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">${i}</button>`;
+                }
+
+                if (endPage < totalPages) {
+                    if (endPage < totalPages - 1) html += `<span style="color: var(--text-secondary); align-self: center">...</span>`;
+                    html += `<button class="btn-page" onclick="changePage(${totalPages})">${totalPages}</button>`;
+                }
+            }
+
+            nav.innerHTML = html;
+        }
+
+        function changePage(p) { currentPage = p; fetchSkills(); window.scrollTo(0, 400); }
+
+        var sourceLabels = {
+            'github': 'GitHub', 'clawhub': 'ClawHub', 'skills.sh': 'Skills.sh', 'smithery': 'Smithery',
+            'mcp-market': 'MCP Market', 'skillsmp': 'SkillsMP', 'awesome-list': 'Awesome'
+        };
+
+        function formatStatNum(n) {
+            if (n >= 10000) return (n / 10000).toFixed(1).replace(/\.0$/, '') + (currentLang === 'zh' ? '万' : 'w');
+            if (n >= 1000) return (n / 1000).toFixed(1).replace(/\.0$/, '') + (currentLang === 'zh' ? '千' : 'k');
+            return (n || 0).toLocaleString();
+        }
+
+        function getSourceUrl(s) {
+            var url = s.source?.url || '';
+            var st = (s.source?.type || '').toLowerCase();
+            if ((st === 'skills_sh' || st === 'skills.sh') && s.skill_id) {
+                var shPart = String(s.skill_id).replace(/^skills_sh:/, '');
+                if (shPart && shPart.indexOf('/') !== -1) {
+                    return 'https://skills.sh/' + shPart;
+                }
+            }
+            return url;
+        }
+
+        function getDownloadUrl(s) {
+            var sourceUrl = getSourceUrl(s);
+            var installUri = s.install_uri || '';
+            var st = (s.source?.type || '').toLowerCase();
+            if (st === 'github' && sourceUrl) {
+                var match = installUri.match(/@([^/]+)$/);
+                var branch = match ? match[1] : 'main';
+                var base = sourceUrl.replace(/\/$/, '');
+                return base + '/archive/refs/heads/' + branch + '.zip';
+            }
+            if (st === 'clawhub') {
+                var slugMatch = installUri.match(/skill:\/\/clawhub\/([^/@]+)/);
+                var slug = slugMatch ? slugMatch[1] : '';
+                if (slug) return 'https://wry-manatee-359.convex.site/api/v1/download?slug=' + encodeURIComponent(slug);
+            }
+            return sourceUrl || '';
+        }
+
+        function openModal(s) {
+            var name = s.name || '';
+            var firstChar = (name.charAt(0) || 'S').toUpperCase();
+            document.getElementById('mIcon').innerText = firstChar;
+            document.getElementById('mTitle').innerText = name;
+            document.getElementById('mSlug').innerText = s.skill_id || s.install_uri || '';
+            document.getElementById('mDesc').innerText = s.description || (currentLang === 'zh' ? '为您的 Agent 提供即插即用的核心能力扩展。' : 'Plug-and-play capability extension for your Agent.');
+
+            var stars = s.metrics?.stars || 0;
+            var downloads = s.metrics?.downloads || 0;
+            var isFeatured = stars >= 100 || downloads >= 1000;
+            document.getElementById('mFeaturedBadge').style.display = isFeatured ? 'inline-block' : 'none';
+            document.getElementById('mFeaturedBadge').innerText = i18n[currentLang].featured;
+
+            var st = (s.source?.type || 'unknown').toString();
+            document.getElementById('mSourceTag').innerText = sourceLabels[st] || st;
+            document.getElementById('mSourceTag').style.display = 'inline-flex';
+
+            var downloadUrl = getDownloadUrl(s);
+            var hasFastDownload = !!downloadUrl && (st === 'github' || st === 'clawhub');
+            document.getElementById('mDownloadTag').style.display = hasFastDownload ? 'inline-flex' : 'none';
+            document.getElementById('mDownloadTagText').innerText = i18n[currentLang].fast_download;
+
+            var sourceUrl = getSourceUrl(s);
+            var sourceName = sourceLabels[st] || st;
+            var author = s.author || '';
+            var attrText = document.getElementById('mSourceAttributionText');
+            var linkEl = document.getElementById('mSourceLink');
+            var attrStr = i18n[currentLang].source_from + sourceName + i18n[currentLang].author_is + author;
+            if (sourceUrl) {
+                attrStr += i18n[currentLang].view_details_at + ' ';
+                linkEl.href = sourceUrl;
+                linkEl.querySelector('#mSourceLinkText').innerText = sourceName;
+                linkEl.style.display = 'inline-flex';
+            } else {
+                linkEl.style.display = 'none';
+            }
+            attrText.innerText = attrStr;
+
+            document.getElementById('mStatDownloads').innerText = formatStatNum(downloads);
+            document.getElementById('mStatStars').innerText = formatStatNum(stars);
+            document.getElementById('mStatInstalls').innerText = formatStatNum(downloads);
+            document.getElementById('mStatDownloadsLabel').innerText = i18n[currentLang].downloads_count;
+            document.getElementById('mStatStarsLabel').innerText = i18n[currentLang].favorites;
+            document.getElementById('mStatInstallsLabel').innerText = i18n[currentLang].installs_count;
+
+            var installUri = s.install_uri || '';
+            var agentPrompt = currentLang === 'zh'
+                ? '请安装技能：' + installUri
+                : 'Please install skill: ' + installUri;
+            document.getElementById('mAgentHint').innerText = i18n[currentLang].install_for_agent;
+            document.getElementById('mAgentCode').innerText = agentPrompt;
+            document.getElementById('mHumanHint').innerText = i18n[currentLang].install_for_human;
+            document.getElementById('mHumanCode').innerText = 'skill install ' + installUri;
+
+            document.getElementById('mAgentCopyBtn').innerText = i18n[currentLang].copy;
+            document.getElementById('mHumanCopyBtn').innerText = i18n[currentLang].copy;
+            document.getElementById('mAgentCopyBtn').onclick = function() {
+                navigator.clipboard.writeText(agentPrompt).then(function() {
+                    var btn = document.getElementById('mAgentCopyBtn');
+                    var orig = btn.innerText;
+                    btn.innerText = i18n[currentLang].copied;
+                    setTimeout(function() { btn.innerText = orig; }, 1500);
+                });
+            };
+            document.getElementById('mHumanCopyBtn').onclick = function() {
+                navigator.clipboard.writeText('skill install ' + installUri).then(function() {
+                    var btn = document.getElementById('mHumanCopyBtn');
+                    var orig = btn.innerText;
+                    btn.innerText = i18n[currentLang].copied;
+                    setTimeout(function() { btn.innerText = orig; }, 1500);
+                });
+            };
+
+            document.getElementById('mTabAgent').innerText = i18n[currentLang].i_am_agent;
+            document.getElementById('mTabHuman').innerText = i18n[currentLang].i_am_human;
+            document.getElementById('mTabAgent').classList.add('active');
+            document.getElementById('mTabHuman').classList.remove('active');
+            document.getElementById('mTabAgentContent').style.display = 'block';
+            document.getElementById('mTabHumanContent').style.display = 'none';
+
+            document.getElementById('mTabAgent').onclick = function() {
+                document.getElementById('mTabAgent').classList.add('active');
+                document.getElementById('mTabHuman').classList.remove('active');
+                document.getElementById('mTabAgentContent').style.display = 'block';
+                document.getElementById('mTabHumanContent').style.display = 'none';
+            };
+            document.getElementById('mTabHuman').onclick = function() {
+                document.getElementById('mTabHuman').classList.add('active');
+                document.getElementById('mTabAgent').classList.remove('active');
+                document.getElementById('mTabHumanContent').style.display = 'block';
+                document.getElementById('mTabAgentContent').style.display = 'none';
+            };
+
+            var downloadBtn = document.getElementById('mDownloadBtn');
+            if (downloadUrl) {
+                downloadBtn.style.display = 'inline-flex';
+                downloadBtn.href = downloadUrl;
+                document.getElementById('mDownloadBtnText').innerText = i18n[currentLang].direct_download;
+            } else {
+                downloadBtn.style.display = 'none';
+            }
+            document.getElementById('mCloseBtn').innerText = i18n[currentLang].understand;
+            document.getElementById('mCompat').innerText = i18n[currentLang].compat_text;
+            document.getElementById('modal').style.display = 'flex';
+        }
+
+        function closeModal() { document.getElementById('modal').style.display = 'none'; }
+
+        // Sidebar logic etc.
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            currentQuery = e.target.value;
+            currentPage = 1;
+            clearTimeout(window.searchTimer);
+            window.searchTimer = setTimeout(fetchSkills, 500);
+        });
+
+        document.querySelectorAll('.tab').forEach(b => {
+            b.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                b.classList.add('active');
+                currentCategory = b.dataset.cat;
+                currentPage = 1;
+                fetchSkills();
+            });
+        });
+
+        function setupTheme() {
+            const html = document.documentElement;
+            const btn = document.getElementById('themeToggle');
+            btn.addEventListener('click', () => {
+                const isDark = html.getAttribute('data-theme') === 'dark';
+                html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+            });
+        }
+
+        init();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,5 @@
+.venv/
+.pw-browsers/
+skills.db
+__pycache__/
+config.yaml

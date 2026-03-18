@@ -1,0 +1,7 @@
+# Agent Skills Hub 配置文件示例
+# 复制此文件为 config.yaml 并填入实际配置
+
+database:
+  # MySQL 连接 DSN（Go 风格格式）
+  # 格式: user:password@tcp(host:port)/dbname?charset=utf8mb4&parseTime=True&loc=Local
+  mysql_dsn: "user:password@tcp(host:port)/dbname?charset=utf8mb4&parseTime=True&loc=Local"
