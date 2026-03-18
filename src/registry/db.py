@@ -48,6 +48,27 @@ def _get_mysql_dsn() -> str:
     return dsn
 
 
+def _parse_mysql_url(url: str) -> dict:
+    """解析 mysql:// 或 mysql+pymysql:// 格式的 URL（Railway 等平台常用）"""
+    from urllib.parse import urlparse, unquote
+    parsed = urlparse(url)
+    if parsed.scheme and "mysql" not in parsed.scheme.lower():
+        raise ValueError(f"不支持的数据库 URL 格式: {url}")
+    return {
+        "host": parsed.hostname or "localhost",
+        "port": parsed.port or 3306,
+        "user": unquote(parsed.username) if parsed.username else "root",
+        "password": unquote(parsed.password) if parsed.password else "",
+        "database": (parsed.path or "/").lstrip("/").split("?")[0] or "mysql",
+        "charset": "utf8mb4",
+        "cursorclass": pymysql.cursors.DictCursor,
+        "autocommit": False,
+        "connect_timeout": 30,
+        "read_timeout": 60,
+        "write_timeout": 60,
+    }
+
+
 def _parse_dsn(dsn: str) -> dict:
     """将 Go 风格的 MySQL DSN 解析为 pymysql 连接参数"""
     # 格式: user:password@tcp(host:port)/dbname?params
@@ -70,6 +91,11 @@ def _parse_dsn(dsn: str) -> dict:
 
 def _get_conn_params() -> dict:
     """获取连接参数（延迟加载，支持配置热更新）"""
+    _load_dotenv()
+    # Railway 等平台使用 DATABASE_URL 或 MYSQL_URL
+    url = os.environ.get("DATABASE_URL") or os.environ.get("MYSQL_URL")
+    if url and ("mysql://" in url or "mysql+pymysql://" in url):
+        return _parse_mysql_url(url)
     return _parse_dsn(_get_mysql_dsn())
 
 

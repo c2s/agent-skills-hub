@@ -141,6 +141,12 @@ python3 skill-cli.py install "skill://github/langchain-ai/finance-tools@main"
 
 ---
 
+## Deployment
+
+See [DEPLOY.md](./DEPLOY.md) for Railway deployment guide.
+
+---
+
 ## Development
 
 Mark `src` as **Sources Root** in your IDE, or:

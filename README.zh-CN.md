@@ -140,6 +140,12 @@ python3 skill-cli.py install "skill://github/langchain-ai/finance-tools@main"
 
 ---
 
+## 部署
+
+参见 [DEPLOY.md](./DEPLOY.md) 了解 Railway 部署指南。
+
+---
+
 ## 开发说明
 
 建议在 IDE 中将 `src` 目录标记为 **Sources Root**，或设置：

@@ -42,4 +42,6 @@ app.router.lifespan_context = combined_lifespan
 
 if __name__ == "__main__":
     print("✨ Skill Meta-Registry Unified Launcher")
-    uvicorn.run("run:app", host="0.0.0.0", port=8000, reload=True)
+    port = int(os.environ.get("PORT", 8000))
+    reload = os.environ.get("RAILWAY_ENVIRONMENT") is None  # 本地开发启用 reload，Railway 上禁用
+    uvicorn.run("run:app", host="0.0.0.0", port=port, reload=reload)
