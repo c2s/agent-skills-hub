@@ -46,6 +46,11 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 async def root():
     return FileResponse("static/index.html")
 
+
+@app.get("/documentation", include_in_schema=False)
+async def documentation():
+    return FileResponse("static/docs.html")
+
 @app.get("/api/v1/skills/search", response_model=SkillSearchResponse)
 async def search_skills(query: str = "", limit: int = 20, offset: int = 0, category: str = "all"):
     """
