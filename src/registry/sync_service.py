@@ -111,21 +111,24 @@ class SyncManager:
                     break
         print(f"✅ ClawHub sync complete. Processed: {total_synced}, New/Updated: {new_items_count}")
 
+    async def _sync_adapter(self, label: str, adapter):
+        try:
+            async for skill in adapter.fetch_skills():
+                self.db.save_skill(skill)
+        except Exception as e:
+            print(f"❌ {label} sync failed: {e}")
+
     async def sync_others(self):
         """同步 GitHub & Skills.sh & Smithery & Awesome Claude"""
         print("🚀 Syncing from Others (GitHub, Skills.sh, Smithery, Awesome Claude)...")
-        async for skill in self.github_adapter.fetch_skills():
-            self.db.save_skill(skill)
-        async for skill in self.skills_sh_adapter.fetch_skills():
-            self.db.save_skill(skill)
-        async for skill in self.smithery_adapter.fetch_skills():
-            self.db.save_skill(skill)
-        async for skill in self.github_awesome_adapter.fetch_skills():
-            self.db.save_skill(skill)
-        async for skill in self.mcp_market_adapter.fetch_skills():
-            self.db.save_skill(skill)
-        async for skill in self.skillsmp_adapter.fetch_skills():
-            self.db.save_skill(skill)
+        await self._sync_adapter("GitHub", self.github_adapter)
+        await self._sync_adapter("Skills.sh", self.skills_sh_adapter)
+        await self._sync_adapter("Smithery", self.smithery_adapter)
+        await self._sync_adapter("Awesome Claude", self.github_awesome_adapter)
+        await self._sync_adapter("MCP Market", self.mcp_market_adapter)
+        # SkillsMP 暂不插入数据库，使用 export_skillsmp.py 同步到本地 SQL 文件后手动执行
+        # async for skill in self.skillsmp_adapter.fetch_skills():
+        #     self.db.save_skill(skill)
         print("✅ Others sync complete.")
 
     async def run_sync_task(self):

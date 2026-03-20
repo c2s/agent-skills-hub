@@ -95,9 +95,10 @@ class SyncManager:
         async for skill in self.mcp_market_adapter.fetch_skills():
             self.db.save_skill(skill)
             
-        print("🚀 Syncing from SkillsMP...")
-        async for skill in self.skillsmp_adapter.fetch_skills():
-            self.db.save_skill(skill)
+        # SkillsMP 暂不插入数据库，使用 export_skillsmp.py 同步到本地 SQL 文件后手动执行
+        # print("🚀 Syncing from SkillsMP...")
+        # async for skill in self.skillsmp_adapter.fetch_skills():
+        #     self.db.save_skill(skill)
             
         print("✅ Meta-sources sync complete.")
 

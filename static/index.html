@@ -1335,6 +1335,16 @@
                 var slug = slugMatch ? slugMatch[1] : '';
                 if (slug) return 'https://wry-manatee-359.convex.site/api/v1/download?slug=' + encodeURIComponent(slug);
             }
+            if (st === 'skills.sh' || st === 'skills_sh') {
+                var shPath = '';
+                if (s.skill_id) shPath = String(s.skill_id).replace(/^skills_sh:/, '');
+                if (!shPath) {
+                    var shUri = installUri.match(/skill:\/\/skills_sh\/([^@]+)/);
+                    shPath = shUri ? shUri[1] : '';
+                }
+                var segs = shPath ? shPath.split('/').filter(Boolean) : [];
+                if (segs.length >= 2) return 'https://github.com/' + segs[0] + '/' + segs[1];
+            }
             return sourceUrl || '';
         }
 
@@ -1357,7 +1367,7 @@
             document.getElementById('mSourceTag').style.display = 'inline-flex';
 
             var downloadUrl = getDownloadUrl(s);
-            var hasFastDownload = !!downloadUrl && (st === 'github' || st === 'clawhub');
+            var hasFastDownload = !!downloadUrl && (st === 'github' || st === 'clawhub' || st === 'skills.sh' || st === 'skills_sh');
             document.getElementById('mDownloadTag').style.display = hasFastDownload ? 'inline-flex' : 'none';
             document.getElementById('mDownloadTagText').innerText = i18n[currentLang].fast_download;
 

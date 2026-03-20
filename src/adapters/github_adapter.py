@@ -29,33 +29,41 @@ class GitHubAdapter(BaseAdapter):
         基于 GitHub Rest API 搜索包含 `agent-skill` 标签的仓库
         并解析其下的 `skill.yaml`。
         """
-        async with httpx.AsyncClient(headers=self.headers) as client:
+        # 代理/慢网络下默认 5s 连接超时易触发 ConnectTimeout；单条失败不应中断整次同步
+        timeout = httpx.Timeout(60.0, connect=30.0)
+        async with httpx.AsyncClient(headers=self.headers, timeout=timeout) as client:
             # MVP: 搜索携带 agent-skill 的仓库
             query = "topic:agent-skill"
             url = f"https://api.github.com/search/repositories?q={query}&sort=stars&order=desc"
-            
-            response = await client.get(url)
+            try:
+                response = await client.get(url)
+            except httpx.RequestError as e:
+                print(f"Error fetching GitHub search API: {e}")
+                return
             if response.status_code != 200:
                 print(f"Error fetching from GitHub: {response.text}")
                 return
-                
+
             data = response.json()
             items = data.get("items", [])
-            
+
             for item in items:
-                # 对于查到的仓库，尝试去抓取其默认分支下的 skill.yaml 
+                # 对于查到的仓库，尝试去抓取其默认分支下的 skill.yaml
                 full_name = item.get("full_name")
                 stars = item.get("stargazers_count", 0)
                 default_branch = item.get("default_branch", "main")
-                
-                # 获取 skill.yaml 内容
+
                 raw_url = f"https://raw.githubusercontent.com/{full_name}/{default_branch}/skill.yaml"
-                yaml_resp = await client.get(raw_url)
-                
+                try:
+                    yaml_resp = await client.get(raw_url)
+                except httpx.RequestError as e:
+                    print(f"⚠️ Skip {full_name} (fetch skill.yaml): {e}")
+                    continue
+
                 if yaml_resp.status_code == 200:
                     try:
                         content = yaml.safe_load(yaml_resp.text)
-                        
+
                         # 构建统一下发的模型
                         yield SkillMetadata(
                             skill_id=f"github:{full_name}",
