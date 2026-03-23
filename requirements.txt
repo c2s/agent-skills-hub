@@ -6,6 +6,7 @@ requests>=2.32.3
 qdrant-client>=1.9.1
 python-dotenv>=1.0.1
 PyYAML
+openpyxl>=3.1.0
 pymysql>=1.1.0
 playwright==1.58.0
 playwright-stealth==2.0.2

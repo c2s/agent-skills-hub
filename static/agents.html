@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="zh" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent List | UseSkill</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #5865F2;
+            --primary-bg: #0B0F1A;
+            --surface: #1B2233;
+            --text-primary: #FFFFFF;
+            --text-secondary: #94A3B8;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --header-bg: rgba(11, 15, 26, 0.85);
+            --card-hover: #212B45;
+            --accent-warn: #F59E0B;
+        }
+        [data-theme="light"] {
+            --primary: #4F46E5;
+            --primary-bg: #F8FAFC;
+            --surface: #FFFFFF;
+            --text-primary: #0F172A;
+            --text-secondary: #64748B;
+            --border-color: #E2E8F0;
+            --header-bg: rgba(255, 255, 255, 0.9);
+            --card-hover: #F1F5F9;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--primary-bg); color: var(--text-primary); min-height: 100vh; }
+        h1, .logo { font-family: 'Outfit', sans-serif; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 40px; }
+        header {
+            position: sticky; top: 0; z-index: 1000;
+            backdrop-filter: blur(12px); background: var(--header-bg);
+            border-bottom: 1px solid var(--border-color);
+            height: 72px; display: flex; align-items: center;
+        }
+        .header-content { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+        .logo {
+            font-size: 24px; font-weight: 800;
+            background: linear-gradient(135deg, #818CF8, #C084FC);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            cursor: pointer;
+        }
+        .nav-menu { display: flex; gap: 28px; list-style: none; align-items: center; }
+        .nav-menu a { color: var(--text-secondary); text-decoration: none; font-weight: 500; font-size: 15px; }
+        .nav-menu a:hover, .nav-menu a.active { color: var(--primary); }
+        .header-actions { display: flex; align-items: center; gap: 12px; }
+        .btn-icon {
+            border: 1px solid var(--border-color); background: var(--surface);
+            color: var(--text-secondary); cursor: pointer; font-size: 14px;
+            padding: 8px 12px; border-radius: 8px; font-weight: 600;
+        }
+        .btn-icon:hover { border-color: var(--primary); color: var(--primary); }
+        .theme-btn { border: none; background: transparent; color: var(--text-secondary); cursor: pointer; font-size: 20px; }
+        .page-hero { padding: 48px 0 32px; text-align: center; }
+        .page-hero h1 { font-size: 40px; font-weight: 800; letter-spacing: -1px; margin-bottom: 12px; }
+        .page-hero p { color: var(--text-secondary); font-size: 17px; max-width: 640px; margin: 0 auto 28px; line-height: 1.6; }
+        .search-wrap { max-width: 520px; margin: 0 auto 36px; position: relative; }
+        .search-wrap input {
+            width: 100%; height: 52px; border-radius: 12px; border: 1px solid var(--border-color);
+            background: var(--surface); color: var(--text-primary); padding: 0 20px 0 44px; font-size: 15px;
+        }
+        .search-wrap input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(88, 101, 242, 0.15); }
+        .search-wrap svg { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-secondary); }
+        .agent-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 22px; padding-bottom: 80px;
+        }
+        .agent-card {
+            background: var(--surface); border: 1px solid var(--border-color); border-radius: 16px;
+            padding: 22px; cursor: pointer; text-align: left; transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+            display: flex; flex-direction: column; min-height: 220px;
+        }
+        .agent-card:hover {
+            transform: translateY(-3px); border-color: var(--primary);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+        }
+        .card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 12px; }
+        .card-title { font-size: 18px; font-weight: 700; line-height: 1.3; }
+        .card-org { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
+        .badges { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
+        .badge {
+            font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 6px; white-space: nowrap;
+        }
+        .badge-rec-high { background: rgba(16, 185, 129, 0.2); color: #10B981; }
+        .badge-rec-mid { background: rgba(88, 101, 242, 0.2); color: var(--primary); }
+        .badge-rec-low { background: rgba(148, 163, 184, 0.25); color: var(--text-secondary); }
+        .badge-rec-watch { background: rgba(245, 158, 11, 0.2); color: var(--accent-warn); }
+        .badge-os-yes { background: rgba(34, 197, 94, 0.15); color: #22C55E; }
+        .badge-os-no { background: rgba(148, 163, 184, 0.2); color: var(--text-secondary); }
+        .card-type { font-size: 13px; color: var(--primary); font-weight: 600; margin-bottom: 10px; }
+        .card-scenarios {
+            font-size: 14px; color: var(--text-secondary); line-height: 1.55;
+            display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; flex: 1;
+        }
+        .card-meta { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border-color); font-size: 12px; color: var(--text-secondary); }
+        .empty-state { text-align: center; padding: 80px 20px; color: var(--text-secondary); grid-column: 1 / -1; }
+        .count-pill { display: inline-block; margin-top: 8px; font-size: 13px; color: var(--text-secondary); }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container header-content">
+            <div class="logo" onclick="location.href='/'">UseSkill</div>
+            <ul class="nav-menu">
+                <li><a href="/" data-i18n="nav_home">首页</a></li>
+                <li><a href="/agents" class="active" data-i18n="nav_agents">Agent List</a></li>
+                <li><a href="/documentation" data-i18n="nav_docs">Docs</a></li>
+                <li><a href="/docs" target="_blank" rel="noopener noreferrer" data-i18n="nav_api_docs">API</a></li>
+            </ul>
+            <div class="header-actions">
+                <button type="button" class="btn-icon" id="langToggle"><span id="langText">EN</span></button>
+                <button type="button" class="theme-btn" id="themeToggle" aria-label="Theme">🌓</button>
+            </div>
+        </div>
+    </header>
+    <main>
+        <div class="container">
+            <section class="page-hero">
+                <h1 data-i18n="agents_title">Agent 全景列表</h1>
+                <p data-i18n="agents_subtitle">基于维护表整理的编码 Agent、产品与开源框架，点击查看完整字段、官网与文档入口。</p>
+                <div class="search-wrap">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                    <input type="search" id="agentSearch" data-i18n-placeholder="agents_search_placeholder" placeholder="按名称、组织、场景搜索…" autocomplete="off">
+                </div>
+                <div class="count-pill"><span data-i18n="agents_total_prefix">共</span> <strong id="agentCount">0</strong> <span data-i18n="agents_total_suffix">个条目</span></div>
+            </section>
+            <div class="agent-grid" id="agentGrid">
+                <div class="empty-state" id="loadingState" data-i18n="agents_loading">加载中…</div>
+            </div>
+        </div>
+    </main>
+    <script>
+        let currentLang = localStorage.getItem('lang') || 'zh';
+        let allAgents = [];
+
+        const i18n = {
+            zh: {
+                nav_home: '首页', nav_agents: 'Agent List', nav_docs: 'Docs', nav_api_docs: 'API',
+                agents_title: 'Agent 全景列表',
+                agents_subtitle: '基于维护表整理的编码 Agent、产品与开源框架，点击查看完整字段、官网与文档入口。',
+                agents_search_placeholder: '按名称、组织、场景搜索…',
+                agents_total_prefix: '共', agents_total_suffix: '个条目',
+                agents_loading: '加载中…', agents_error: '加载失败，请确认后端已启动。',
+                agents_empty: '没有匹配的 Agent。',
+                lang_btn: 'EN', open_source_yes: '开源', open_source_no: '闭源',
+                rec_high: '高', rec_mid: '中高', rec_low: '中', rec_watch: '观察'
+            },
+            en: {
+                nav_home: 'Home', nav_agents: 'Agent List', nav_docs: 'Docs', nav_api_docs: 'API',
+                agents_title: 'Agent Directory',
+                agents_subtitle: 'Curated coding agents, products, and open-source frameworks from our registry. Open a card for full fields, official site, and docs.',
+                agents_search_placeholder: 'Search by name, org, or scenario…',
+                agents_total_prefix: '', agents_total_suffix: ' agents',
+                agents_loading: 'Loading…', agents_error: 'Failed to load. Is the backend running?',
+                agents_empty: 'No matching agents.',
+                lang_btn: '中文', open_source_yes: 'Open source', open_source_no: 'Proprietary',
+                rec_high: 'High', rec_mid: 'Med-high', rec_low: 'Medium', rec_watch: 'Watch'
+            }
+        };
+
+        function t(key) { return (i18n[currentLang] && i18n[currentLang][key]) || key; }
+
+        function applyChromeI18n() {
+            document.documentElement.lang = currentLang === 'zh' ? 'zh' : 'en';
+            document.querySelectorAll('[data-i18n]').forEach(function (el) {
+                var k = el.getAttribute('data-i18n');
+                if (i18n[currentLang][k]) el.textContent = i18n[currentLang][k];
+            });
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(function (el) {
+                var k = el.getAttribute('data-i18n-placeholder');
+                if (i18n[currentLang][k]) el.setAttribute('placeholder', i18n[currentLang][k]);
+            });
+            document.getElementById('langText').textContent = i18n[currentLang].lang_btn;
+        }
+
+        function updateUI() {
+            applyChromeI18n();
+            var loadingEl = document.getElementById('loadingState');
+            if (loadingEl && !allAgents.length) loadingEl.textContent = t('agents_loading');
+            renderCards(filterAgents(document.getElementById('agentSearch').value));
+        }
+
+        function recClass(level) {
+            var s = (level || '').trim().toLowerCase();
+            if (s === 'high' || (level || '').trim().indexOf('高') === 0 || (level || '').trim() === '高') return 'badge-rec-high';
+            if (s.indexOf('medium') === 0 || (level || '').trim().indexOf('中') === 0) return 'badge-rec-mid';
+            if (s.indexOf('watch') >= 0 || (level || '').trim().indexOf('观察') >= 0) return 'badge-rec-watch';
+            return 'badge-rec-low';
+        }
+
+        function openSourceClass(os) {
+            var y = (os || '').trim().toLowerCase();
+            if (y === '是' || y === 'yes' || y.indexOf('open') === 0) return 'badge-os-yes';
+            return 'badge-os-no';
+        }
+
+        function openSourceLabel(os) {
+            var y = (os || '').trim();
+            var yl = y.toLowerCase();
+            if (y === '是' || yl === 'yes') return t('open_source_yes');
+            if (y === '否' || yl === 'no') return t('open_source_no');
+            return y || '—';
+        }
+
+        function filterAgents(q) {
+            q = (q || '').trim().toLowerCase();
+            if (!q) return allAgents.slice();
+            return allAgents.filter(function (a) {
+                var blob = [a.name, a.organization, a.agent_type, a.scenarios, a.focus_areas, a.positioning].join(' ').toLowerCase();
+                return blob.indexOf(q) >= 0;
+            });
+        }
+
+        function renderCards(list) {
+            var grid = document.getElementById('agentGrid');
+            document.getElementById('agentCount').textContent = String(list.length);
+            if (!allAgents.length) return;
+            if (!list.length) {
+                grid.innerHTML = '<div class="empty-state" data-i18n="agents_empty">' + t('agents_empty') + '</div>';
+                return;
+            }
+            grid.innerHTML = list.map(function (a) {
+                var rec = (a.recommendation_level || '').trim();
+                var os = a.open_source || '';
+                return (
+                    '<article class="agent-card" role="link" tabindex="0" data-id="' + a.id + '">' +
+                    '<div class="card-top">' +
+                    '<div><div class="card-title">' + escapeHtml(a.name) + '</div>' +
+                    '<div class="card-org">' + escapeHtml(a.organization || '') + '</div></div>' +
+                    '<div class="badges">' +
+                    '<span class="badge ' + recClass(rec) + '">' + escapeHtml(rec || '—') + '</span>' +
+                    '<span class="badge ' + openSourceClass(os) + '">' + escapeHtml(openSourceLabel(os)) + '</span>' +
+                    '</div></div>' +
+                    '<div class="card-type">' + escapeHtml(a.agent_type || '') + '</div>' +
+                    '<p class="card-scenarios">' + escapeHtml(a.scenarios || '') + '</p>' +
+                    '<div class="card-meta">' + escapeHtml(a.category_tier || '') + '</div>' +
+                    '</article>'
+                );
+            }).join('');
+            grid.querySelectorAll('.agent-card').forEach(function (card) {
+                function go() {
+                    var id = card.getAttribute('data-id');
+                    location.href = '/agent?id=' + encodeURIComponent(id);
+                }
+                card.addEventListener('click', go);
+                card.addEventListener('keydown', function (e) {
+                    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); }
+                });
+            });
+        }
+
+        function escapeHtml(s) {
+            if (!s) return '';
+            return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+
+        async function loadAgents() {
+            var grid = document.getElementById('agentGrid');
+            grid.innerHTML = '<div class="empty-state" id="loadingState">' + t('agents_loading') + '</div>';
+            try {
+                var res = await fetch('/api/v1/agents?lang=' + encodeURIComponent(currentLang));
+                if (!res.ok) throw new Error('bad status');
+                allAgents = await res.json();
+                renderCards(filterAgents(document.getElementById('agentSearch').value));
+            } catch (e) {
+                grid.innerHTML = '<div class="empty-state">' + t('agents_error') + '</div>';
+            }
+        }
+
+        document.getElementById('langToggle').addEventListener('click', function () {
+            currentLang = currentLang === 'zh' ? 'en' : 'zh';
+            localStorage.setItem('lang', currentLang);
+            applyChromeI18n();
+            loadAgents();
+        });
+
+        document.getElementById('themeToggle').addEventListener('click', function () {
+            var html = document.documentElement;
+            var dark = html.getAttribute('data-theme') === 'dark';
+            html.setAttribute('data-theme', dark ? 'light' : 'dark');
+        });
+
+        document.getElementById('agentSearch').addEventListener('input', function (e) {
+            renderCards(filterAgents(e.target.value));
+        });
+
+        updateUI();
+        loadAgents();
+    </script>
+</body>
+</html>

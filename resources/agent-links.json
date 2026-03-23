@@ -1,0 +1,198 @@
+{
+  "Cursor": {
+    "website": "https://cursor.com",
+    "documentation": "https://docs.cursor.com"
+  },
+  "Claude Code": {
+    "website": "https://www.anthropic.com",
+    "documentation": "https://docs.anthropic.com/en/docs/claude-code"
+  },
+  "OpenAI Codex / Codex Agent": {
+    "website": "https://openai.com",
+    "documentation": "https://platform.openai.com/docs"
+  },
+  "GitHub Copilot": {
+    "website": "https://github.com/features/copilot",
+    "documentation": "https://docs.github.com/copilot"
+  },
+  "Devin": {
+    "website": "https://devin.ai",
+    "documentation": "https://devin.ai"
+  },
+  "OpenHands": {
+    "website": "https://www.all-hands.dev",
+    "documentation": "https://docs.all-hands.dev"
+  },
+  "Aider": {
+    "website": "https://aider.chat",
+    "documentation": "https://aider.chat/docs"
+  },
+  "Windsurf / Codeium": {
+    "website": "https://windsurf.com",
+    "documentation": "https://docs.codeium.com"
+  },
+  "Replit Agent": {
+    "website": "https://replit.com",
+    "documentation": "https://docs.replit.com"
+  },
+  "Manus": {
+    "website": "https://manus.im",
+    "documentation": "https://help.manus.im"
+  },
+  "ChatGPT Agent / Operator 类能力": {
+    "website": "https://openai.com/chatgpt",
+    "documentation": "https://help.openai.com"
+  },
+  "Microsoft Copilot / Copilot Studio": {
+    "website": "https://www.microsoft.com/microsoft-copilot",
+    "documentation": "https://learn.microsoft.com/microsoft-copilot-studio"
+  },
+  "Gemini / Google Agents 生态": {
+    "website": "https://deepmind.google/technologies/gemini/",
+    "documentation": "https://ai.google.dev/gemini-api/docs"
+  },
+  "Zapier AI Agents": {
+    "website": "https://zapier.com",
+    "documentation": "https://help.zapier.com"
+  },
+  "AutoGen": {
+    "website": "https://github.com/microsoft/autogen",
+    "documentation": "https://microsoft.github.io/autogen/stable/"
+  },
+  "LangGraph": {
+    "website": "https://www.langchain.com/langgraph",
+    "documentation": "https://langchain-ai.github.io/langgraph/"
+  },
+  "LangChain": {
+    "website": "https://www.langchain.com",
+    "documentation": "https://python.langchain.com/docs/"
+  },
+  "crewAI": {
+    "website": "https://www.crewai.com",
+    "documentation": "https://docs.crewai.com"
+  },
+  "Open Interpreter": {
+    "website": "https://openinterpreter.com",
+    "documentation": "https://docs.openinterpreter.com"
+  },
+  "AutoGPT": {
+    "website": "https://github.com/Significant-Gravitas/AutoGPT",
+    "documentation": "https://docs.agpt.co"
+  },
+  "Semantic Kernel": {
+    "website": "https://github.com/microsoft/semantic-kernel",
+    "documentation": "https://learn.microsoft.com/semantic-kernel/"
+  },
+  "Haystack Agents": {
+    "website": "https://haystack.deepset.ai",
+    "documentation": "https://docs.haystack.deepset.ai"
+  },
+  "LlamaIndex Workflows / Agents": {
+    "website": "https://www.llamaindex.ai",
+    "documentation": "https://docs.llamaindex.ai"
+  },
+  "PydanticAI": {
+    "website": "https://ai.pydantic.dev",
+    "documentation": "https://ai.pydantic.dev"
+  },
+  "DSPy": {
+    "website": "https://dspy.ai",
+    "documentation": "https://dspy.ai/docs"
+  },
+  "CAMEL": {
+    "website": "https://www.camel-ai.org",
+    "documentation": "https://docs.camel-ai.org"
+  },
+  "MetaGPT": {
+    "website": "https://github.com/geekan/MetaGPT",
+    "documentation": "https://github.com/geekan/MetaGPT#documentation"
+  },
+  "SuperAGI": {
+    "website": "https://github.com/TransformerOptimus/SuperAGI",
+    "documentation": "https://github.com/TransformerOptimus/SuperAGI/wiki"
+  },
+  "Cline": {
+    "website": "https://cline.bot",
+    "documentation": "https://docs.cline.bot"
+  },
+  "Roo Code": {
+    "website": "https://github.com/RooVetGit/Roo-Code",
+    "documentation": "https://github.com/RooVetGit/Roo-Code"
+  },
+  "Continue": {
+    "website": "https://continue.dev",
+    "documentation": "https://docs.continue.dev"
+  },
+  "Sweep": {
+    "website": "https://sweep.dev",
+    "documentation": "https://docs.sweep.dev"
+  },
+  "Sourcegraph Cody": {
+    "website": "https://sourcegraph.com/cody",
+    "documentation": "https://sourcegraph.com/docs/cody"
+  },
+  "Tabnine": {
+    "website": "https://www.tabnine.com",
+    "documentation": "https://docs.tabnine.com"
+  },
+  "MutableAI": {
+    "website": "https://mutable.ai",
+    "documentation": "https://mutable.ai"
+  },
+  "Factory AI": {
+    "website": "https://factory.ai",
+    "documentation": "https://docs.factory.ai"
+  },
+  "AutoDev": {
+    "website": "https://github.com/OpenAutoCoder",
+    "documentation": "https://arxiv.org/abs/2403.08299"
+  },
+  "OpenDevin": {
+    "website": "https://openhands.dev",
+    "documentation": "https://docs.all-hands.dev"
+  },
+  "BloombergGPT / Bloomberg 金融AI助手生态": {
+    "website": "https://www.bloomberg.com",
+    "documentation": "https://arxiv.org/abs/2303.17564"
+  },
+  "Sierra / 企业金融客服Agent路线": {
+    "website": "https://sierra.ai",
+    "documentation": "https://sierra.ai/learn-more"
+  },
+  "Hebbia": {
+    "website": "https://www.hebbia.com",
+    "documentation": "https://www.hebbia.com"
+  },
+  "Glean": {
+    "website": "https://www.glean.com",
+    "documentation": "https://docs.glean.com"
+  },
+  "AlphaSense AI / AlphaSense 平台": {
+    "website": "https://www.alpha-sense.com",
+    "documentation": "https://www.alpha-sense.com"
+  },
+  "Kensho": {
+    "website": "https://www.kensho.com",
+    "documentation": "https://www.spglobal.com/market-intelligence/en/solutions/technology/kensho"
+  },
+  "FinRobot": {
+    "website": "https://finrobot.ai",
+    "documentation": "https://github.com/AI4Finance-Foundation/FinRobot"
+  },
+  "FinGPT": {
+    "website": "https://github.com/AI4Finance-Foundation/FinGPT",
+    "documentation": "https://github.com/AI4Finance-Foundation/FinGPT"
+  },
+  "TradingAgents / 量化交易Agent类项目": {
+    "website": "https://github.com/TauricResearch/TradingAgents",
+    "documentation": "https://tauricresearch.github.io/TradingAgents/"
+  },
+  "Rogo": {
+    "website": "https://rogo.ai",
+    "documentation": "https://rogo.ai"
+  },
+  "Crux / 金融研究Copilot类产品": {
+    "website": null,
+    "documentation": null
+  }
+}

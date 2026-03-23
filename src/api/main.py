@@ -1,10 +1,11 @@
 import time
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException, Depends, Query
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from typing import List, Dict, Any, Optional, Tuple
 from src.core.schema import SkillMetadata
 from src.registry.engine import RetrievalEngine
+from src.registry.agent_list_loader import load_agents
 
 from pydantic import BaseModel
 
@@ -30,6 +31,26 @@ class SkillSearchResponse(BaseModel):
     total: int
     results: List[SkillMetadata]
 
+
+class AgentRegistryRecord(BaseModel):
+    """Curated agent row from resources/agent-list.xlsx (+ optional links)."""
+
+    id: int
+    name: str
+    organization: str = ""
+    agent_type: str = ""
+    category_tier: str = ""
+    open_source: str = ""
+    scenarios: str = ""
+    positioning: str = ""
+    focus_areas: str = ""
+    technical_strengths: str = ""
+    limitations: str = ""
+    recommendation_level: str = ""
+    notes: str = ""
+    website: Optional[str] = None
+    documentation: Optional[str] = None
+
 app = FastAPI(
     title="Skill Meta-Registry",
     description="为 Agent 提供统一的技能发现与按需挂载协议",
@@ -50,6 +71,16 @@ async def root():
 @app.get("/documentation", include_in_schema=False)
 async def documentation():
     return FileResponse("static/docs.html")
+
+
+@app.get("/agents", include_in_schema=False)
+async def agents_page():
+    return FileResponse("static/agents.html")
+
+
+@app.get("/agent", include_in_schema=False)
+async def agent_detail_page():
+    return FileResponse("static/agent-detail.html")
 
 @app.get("/api/v1/skills/search", response_model=SkillSearchResponse)
 async def search_skills(query: str = "", limit: int = 20, offset: int = 0, category: str = "all"):
@@ -77,6 +108,38 @@ async def get_top_100():
     results, _ = await engine.get_top_100()
     _cache_set(cache_key, results)
     return results
+
+
+def _agent_locale(lang: str) -> str:
+    return "en" if (lang or "").strip().lower().startswith("en") else "zh"
+
+
+@app.get("/api/v1/agents", response_model=List[AgentRegistryRecord])
+async def list_agent_registry(lang: str = Query("zh", description="zh | en")):
+    """Curated Agent 列表（xlsx + agent-locale.en.json，缓存 5 分钟）"""
+    loc = _agent_locale(lang)
+    cache_key = f"agent_registry:list:{loc}"
+    cached = _cache_get(cache_key)
+    if cached is not None:
+        return cached
+    rows = load_agents(loc)
+    _cache_set(cache_key, rows)
+    return rows
+
+
+@app.get("/api/v1/agents/{agent_id}", response_model=AgentRegistryRecord)
+async def get_agent_registry(agent_id: int, lang: str = Query("zh", description="zh | en")):
+    """单个 Agent 详情（与列表同源缓存，语言与列表一致）"""
+    loc = _agent_locale(lang)
+    cache_key = f"agent_registry:list:{loc}"
+    rows = _cache_get(cache_key)
+    if rows is None:
+        rows = load_agents(loc)
+        _cache_set(cache_key, rows)
+    for r in rows:
+        if r.get("id") == agent_id:
+            return r
+    raise HTTPException(status_code=404, detail="Agent not found")
 
 
 @app.get("/api/v1/skills/categories")

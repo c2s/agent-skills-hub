@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="zh" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent | UseSkill</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #5865F2;
+            --primary-bg: #0B0F1A;
+            --surface: #1B2233;
+            --text-primary: #FFFFFF;
+            --text-secondary: #94A3B8;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --header-bg: rgba(11, 15, 26, 0.85);
+            --accent-warn: #F59E0B;
+            --accent-danger: #F87171;
+        }
+        [data-theme="light"] {
+            --primary: #4F46E5;
+            --primary-bg: #F8FAFC;
+            --surface: #FFFFFF;
+            --text-primary: #0F172A;
+            --text-secondary: #64748B;
+            --border-color: #E2E8F0;
+            --header-bg: rgba(255, 255, 255, 0.9);
+            --accent-danger: #DC2626;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--primary-bg); color: var(--text-primary); min-height: 100vh; }
+        h1, h2, .logo { font-family: 'Outfit', sans-serif; }
+        .container { max-width: 900px; margin: 0 auto; padding: 0 40px; }
+        header {
+            position: sticky; top: 0; z-index: 1000;
+            backdrop-filter: blur(12px); background: var(--header-bg);
+            border-bottom: 1px solid var(--border-color);
+            height: 72px; display: flex; align-items: center;
+        }
+        .header-content { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+        .logo {
+            font-size: 24px; font-weight: 800;
+            background: linear-gradient(135deg, #818CF8, #C084FC);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            cursor: pointer;
+        }
+        .nav-menu { display: flex; gap: 28px; list-style: none; align-items: center; }
+        .nav-menu a { color: var(--text-secondary); text-decoration: none; font-weight: 500; font-size: 15px; }
+        .nav-menu a:hover, .nav-menu a.active { color: var(--primary); }
+        .header-actions { display: flex; align-items: center; gap: 12px; }
+        .btn-icon {
+            border: 1px solid var(--border-color); background: var(--surface);
+            color: var(--text-secondary); cursor: pointer; font-size: 14px;
+            padding: 8px 12px; border-radius: 8px; font-weight: 600;
+        }
+        .btn-icon:hover { border-color: var(--primary); color: var(--primary); }
+        .theme-btn { border: none; background: transparent; color: var(--text-secondary); cursor: pointer; font-size: 20px; }
+        .breadcrumb { font-size: 14px; color: var(--text-secondary); padding: 24px 0 8px; }
+        .breadcrumb a { color: var(--primary); text-decoration: none; }
+        .breadcrumb a:hover { text-decoration: underline; }
+        .hero { padding: 12px 0 32px; }
+        .hero h1 { font-size: 36px; font-weight: 800; letter-spacing: -0.5px; line-height: 1.2; margin-bottom: 10px; }
+        .hero .org { font-size: 17px; color: var(--text-secondary); margin-bottom: 16px; }
+        .badges { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+        .badge {
+            font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 8px;
+        }
+        .badge-rec-high { background: rgba(16, 185, 129, 0.2); color: #10B981; }
+        .badge-rec-mid { background: rgba(88, 101, 242, 0.2); color: var(--primary); }
+        .badge-rec-low { background: rgba(148, 163, 184, 0.25); color: var(--text-secondary); }
+        .badge-rec-watch { background: rgba(245, 158, 11, 0.2); color: var(--accent-warn); }
+        .badge-os-yes { background: rgba(34, 197, 94, 0.15); color: #22C55E; }
+        .badge-os-no { background: rgba(148, 163, 184, 0.2); color: var(--text-secondary); }
+        .link-row { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 28px; }
+        .link-btn {
+            display: inline-flex; align-items: center; gap: 8px; padding: 12px 18px; border-radius: 12px;
+            font-weight: 600; font-size: 14px; text-decoration: none; border: 1px solid var(--border-color);
+            background: var(--surface); color: var(--text-primary);
+        }
+        .link-btn:hover { border-color: var(--primary); color: var(--primary); }
+        .link-btn.primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+        .link-btn.primary:hover { opacity: 0.92; color: #fff; }
+        .link-btn.disabled { opacity: 0.45; pointer-events: none; cursor: default; }
+        section.block { margin-bottom: 36px; }
+        section.block h2 {
+            font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em;
+            color: var(--text-secondary); margin-bottom: 12px; font-weight: 700;
+        }
+        .prose { color: var(--text-secondary); line-height: 1.75; font-size: 15px; white-space: pre-wrap; }
+        .callout {
+            border-radius: 14px; padding: 18px 20px; border: 1px solid rgba(248, 113, 113, 0.35);
+            background: rgba(248, 113, 113, 0.08); margin-top: 8px;
+        }
+        .callout h2 { color: var(--accent-danger); margin-bottom: 8px; text-transform: none; letter-spacing: 0; font-size: 16px; }
+        .callout .prose { color: var(--text-primary); }
+        table.data-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        table.data-table th, table.data-table td {
+            padding: 14px 16px; text-align: left; border-bottom: 1px solid var(--border-color); vertical-align: top;
+        }
+        table.data-table th { width: 28%; color: var(--text-secondary); font-weight: 600; }
+        table.data-table td { color: var(--text-primary); line-height: 1.55; }
+        .empty-state { text-align: center; padding: 100px 20px; color: var(--text-secondary); }
+        .icon-ext { flex-shrink: 0; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container header-content">
+            <div class="logo" onclick="location.href='/'">UseSkill</div>
+            <ul class="nav-menu">
+                <li><a href="/" data-i18n="nav_home">首页</a></li>
+                <li><a href="/agents" class="active" data-i18n="nav_agents">Agent List</a></li>
+                <li><a href="/documentation" data-i18n="nav_docs">Docs</a></li>
+                <li><a href="/docs" target="_blank" rel="noopener noreferrer" data-i18n="nav_api_docs">API</a></li>
+            </ul>
+            <div class="header-actions">
+                <button type="button" class="btn-icon" id="langToggle"><span id="langText">EN</span></button>
+                <button type="button" class="theme-btn" id="themeToggle" aria-label="Theme">🌓</button>
+            </div>
+        </div>
+    </header>
+    <main class="container">
+        <div id="mainContent">
+            <div class="empty-state" id="loadingState" data-i18n="detail_loading">加载中…</div>
+        </div>
+    </main>
+    <script>
+        var currentLang = localStorage.getItem('lang') || 'zh';
+
+        var i18n = {
+            zh: {
+                nav_home: '首页', nav_agents: 'Agent List', nav_docs: 'Docs', nav_api_docs: 'API',
+                detail_loading: '加载中…', detail_error: '无法加载该 Agent，请返回列表重试。',
+                detail_not_found: '未找到该 Agent。',
+                detail_bad_id: '链接无效。',
+                breadcrumb_home: '首页', breadcrumb_agents: 'Agent List',
+                official_site: '官方网站', doc_site: '文档 / 开发者指南', link_pending: '暂无收录链接',
+                sec_positioning: '定位与摘要', sec_scenarios: '主要场景', sec_strengths: '技术优势',
+                sec_focus: '专注领域', sec_tier: '分类层级', sec_notes: '备注与采用建议',
+                sec_limits: '局限与注意点', sec_table: '字段总览',
+                fld_name: '名称', fld_organization: '公司 / 组织', fld_agent_type: '类型',
+                fld_category_tier: '分类层级', fld_open_source: '是否开源', fld_scenarios: '主要场景',
+                fld_positioning: '特色 / 定位', fld_focus_areas: '专注领域', fld_technical_strengths: '技术优势',
+                fld_limitations: '局限 / 注意点', fld_recommendation_level: '推荐级别', fld_notes: '备注',
+                open_source_yes: '开源', open_source_no: '闭源', lang_btn: 'EN',
+                meta_hint: '以下表格与上方段落同源，便于复制与对照。'
+            },
+            en: {
+                nav_home: 'Home', nav_agents: 'Agent List', nav_docs: 'Docs', nav_api_docs: 'API',
+                detail_loading: 'Loading…', detail_error: 'Could not load this agent. Return to the list and try again.',
+                detail_not_found: 'Agent not found.',
+                detail_bad_id: 'Invalid link.',
+                breadcrumb_home: 'Home', breadcrumb_agents: 'Agent List',
+                official_site: 'Official website', doc_site: 'Documentation', link_pending: 'No link curated yet',
+                sec_positioning: 'Positioning', sec_scenarios: 'Primary scenarios', sec_strengths: 'Technical strengths',
+                sec_focus: 'Focus areas', sec_tier: 'Category tier', sec_notes: 'Notes & adoption',
+                sec_limits: 'Limitations & caveats', sec_table: 'Full field overview',
+                fld_name: 'Name', fld_organization: 'Company / org', fld_agent_type: 'Type',
+                fld_category_tier: 'Category tier', fld_open_source: 'Open source', fld_scenarios: 'Scenarios',
+                fld_positioning: 'Positioning', fld_focus_areas: 'Focus', fld_technical_strengths: 'Strengths',
+                fld_limitations: 'Limitations', fld_recommendation_level: 'Recommendation', fld_notes: 'Notes',
+                open_source_yes: 'Open source', open_source_no: 'Proprietary', lang_btn: '中文',
+                meta_hint: 'Same data as above, in table form for easy copy and comparison.'
+            }
+        };
+
+        function t(k) { return (i18n[currentLang] && i18n[currentLang][k]) || k; }
+
+        function updateNavI18n() {
+            document.documentElement.lang = currentLang === 'zh' ? 'zh' : 'en';
+            document.querySelectorAll('[data-i18n]').forEach(function (el) {
+                var key = el.getAttribute('data-i18n');
+                if (i18n[currentLang][key] && el.id !== 'loadingState') el.textContent = i18n[currentLang][key];
+            });
+            document.getElementById('langText').textContent = i18n[currentLang].lang_btn;
+        }
+
+        function recClass(level) {
+            var raw = (level || '').trim();
+            var s = raw.toLowerCase();
+            if (s === 'high' || raw.indexOf('高') === 0 || raw === '高') return 'badge-rec-high';
+            if (s.indexOf('medium') === 0 || raw.indexOf('中') === 0) return 'badge-rec-mid';
+            if (s.indexOf('watch') >= 0 || raw.indexOf('观察') >= 0) return 'badge-rec-watch';
+            return 'badge-rec-low';
+        }
+
+        function openSourceClass(os) {
+            var y = (os || '').trim().toLowerCase();
+            if (y === '是' || y === 'yes') return 'badge-os-yes';
+            return 'badge-os-no';
+        }
+
+        function openSourceLabel(os) {
+            var y = (os || '').trim();
+            var yl = y.toLowerCase();
+            if (y === '是' || yl === 'yes') return t('open_source_yes');
+            if (y === '否' || yl === 'no') return t('open_source_no');
+            return y || '—';
+        }
+
+        function escapeHtml(s) {
+            if (s == null || s === '') return '';
+            return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+
+        function extIcon() {
+            return '<svg class="icon-ext" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>';
+        }
+
+        function renderAgent(a) {
+            document.title = (a.name || 'Agent') + ' | UseSkill';
+            var rec = (a.recommendation_level || '').trim();
+            var os = a.open_source || '';
+            var web = a.website || '';
+            var doc = a.documentation || '';
+            var webBtn = web
+                ? '<a class="link-btn primary" href="' + escapeHtml(web) + '" target="_blank" rel="noopener noreferrer">' + extIcon() + ' ' + escapeHtml(t('official_site')) + '</a>'
+                : '<span class="link-btn disabled">' + escapeHtml(t('link_pending')) + ' · ' + escapeHtml(t('official_site')) + '</span>';
+            var docBtn = doc
+                ? '<a class="link-btn" href="' + escapeHtml(doc) + '" target="_blank" rel="noopener noreferrer">' + extIcon() + ' ' + escapeHtml(t('doc_site')) + '</a>'
+                : '<span class="link-btn disabled">' + escapeHtml(t('link_pending')) + ' · ' + escapeHtml(t('doc_site')) + '</span>';
+
+            var rows = [
+                ['fld_name', a.name], ['fld_organization', a.organization], ['fld_agent_type', a.agent_type],
+                ['fld_category_tier', a.category_tier], ['fld_open_source', a.open_source],
+                ['fld_scenarios', a.scenarios], ['fld_positioning', a.positioning], ['fld_focus_areas', a.focus_areas],
+                ['fld_technical_strengths', a.technical_strengths], ['fld_limitations', a.limitations],
+                ['fld_recommendation_level', a.recommendation_level], ['fld_notes', a.notes]
+            ];
+            var tableBody = rows.map(function (r) {
+                return '<tr><th>' + escapeHtml(t(r[0])) + '</th><td class="prose" style="white-space:pre-wrap">' + escapeHtml(r[1] || '') + '</td></tr>';
+            }).join('');
+
+            var html = ''
+                + '<nav class="breadcrumb"><a href="/">' + escapeHtml(t('breadcrumb_home')) + '</a> / '
+                + '<a href="/agents">' + escapeHtml(t('breadcrumb_agents')) + '</a> / '
+                + '<span>' + escapeHtml(a.name) + '</span></nav>'
+                + '<div class="hero">'
+                + '<h1>' + escapeHtml(a.name) + '</h1>'
+                + '<p class="org">' + escapeHtml(a.organization || '') + '</p>'
+                + '<div class="badges">'
+                + '<span class="badge ' + recClass(rec) + '" title="' + escapeHtml(t('fld_recommendation_level')) + '">' + escapeHtml(rec || '—') + '</span>'
+                + '<span class="badge ' + openSourceClass(os) + '">' + escapeHtml(openSourceLabel(os)) + '</span>'
+                + '<span class="badge badge-rec-low" style="background:rgba(88,101,242,0.12);color:var(--primary)">' + escapeHtml(a.agent_type || '') + '</span>'
+                + '</div>'
+                + '<div class="link-row">' + webBtn + docBtn + '</div>'
+                + '</div>'
+                + '<section class="block"><h2>' + escapeHtml(t('sec_positioning')) + '</h2><p class="prose">' + escapeHtml(a.positioning || '—') + '</p></section>'
+                + '<section class="block"><h2>' + escapeHtml(t('sec_scenarios')) + '</h2><p class="prose">' + escapeHtml(a.scenarios || '—') + '</p></section>'
+                + '<section class="block"><h2>' + escapeHtml(t('sec_strengths')) + '</h2><p class="prose">' + escapeHtml(a.technical_strengths || '—') + '</p></section>'
+                + '<section class="block"><h2>' + escapeHtml(t('sec_focus')) + '</h2><p class="prose">' + escapeHtml(a.focus_areas || '—') + '</p></section>'
+                + '<section class="block"><h2>' + escapeHtml(t('sec_tier')) + '</h2><p class="prose">' + escapeHtml(a.category_tier || '—') + '</p></section>'
+                + '<section class="block callout"><h2>' + escapeHtml(t('sec_limits')) + '</h2><p class="prose">' + escapeHtml(a.limitations || '—') + '</p></section>'
+                + '<section class="block"><h2>' + escapeHtml(t('sec_notes')) + '</h2><p class="prose">' + escapeHtml(a.notes || '—') + '</p></section>'
+                + '<section class="block"><h2>' + escapeHtml(t('sec_table')) + '</h2><p class="prose" style="font-size:13px;margin-bottom:12px">' + escapeHtml(t('meta_hint')) + '</p>'
+                + '<table class="data-table" aria-label="Agent fields"><tbody>' + tableBody + '</tbody></table></section>';
+
+            document.getElementById('mainContent').innerHTML = html;
+        }
+
+        async function init() {
+            updateNavI18n();
+            var params = new URLSearchParams(location.search);
+            var idRaw = params.get('id');
+            var id = parseInt(idRaw, 10);
+            if (!idRaw || isNaN(id) || id < 1) {
+                document.getElementById('mainContent').innerHTML = '<div class="empty-state">' + escapeHtml(t('detail_bad_id')) + '</div>';
+                return;
+            }
+            try {
+                var res = await fetch('/api/v1/agents/' + id + '?lang=' + encodeURIComponent(currentLang));
+                if (res.status === 404) {
+                    document.getElementById('mainContent').innerHTML = '<div class="empty-state">' + escapeHtml(t('detail_not_found')) + '</div>';
+                    return;
+                }
+                if (!res.ok) throw new Error('fail');
+                var a = await res.json();
+                renderAgent(a);
+            } catch (e) {
+                document.getElementById('mainContent').innerHTML = '<div class="empty-state">' + escapeHtml(t('detail_error')) + '</div>';
+            }
+        }
+
+        document.getElementById('langToggle').addEventListener('click', function () {
+            currentLang = currentLang === 'zh' ? 'en' : 'zh';
+            localStorage.setItem('lang', currentLang);
+            updateNavI18n();
+            var params = new URLSearchParams(location.search);
+            var id = parseInt(params.get('id'), 10);
+            if (!isNaN(id) && id >= 1) {
+                fetch('/api/v1/agents/' + id + '?lang=' + encodeURIComponent(currentLang)).then(function (r) { return r.ok ? r.json() : null; }).then(function (a) {
+                    if (a) renderAgent(a);
+                });
+            }
+        });
+
+        document.getElementById('themeToggle').addEventListener('click', function () {
+            var html = document.documentElement;
+            var dark = html.getAttribute('data-theme') === 'dark';
+            html.setAttribute('data-theme', dark ? 'light' : 'dark');
+        });
+
+        init();
+    </script>
+</body>
+</html>
