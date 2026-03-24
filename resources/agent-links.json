@@ -194,5 +194,77 @@
   "Crux / 金融研究Copilot类产品": {
     "website": null,
     "documentation": null
+  },
+  "OpenClaw": {
+    "website": null,
+    "documentation": null
+  },
+  "CrewAI": {
+    "website": "https://www.crewai.com",
+    "documentation": "https://docs.crewai.com"
+  },
+  "NanoClaw": {
+    "website": null,
+    "documentation": null
+  },
+  "Dify": {
+    "website": "https://dify.ai",
+    "documentation": "https://docs.dify.ai"
+  },
+  "n8n (AI版)": {
+    "website": "https://n8n.io",
+    "documentation": "https://docs.n8n.io"
+  },
+  "DeerFlow": {
+    "website": null,
+    "documentation": null
+  },
+  "ZeroClaw": {
+    "website": null,
+    "documentation": null
+  },
+  "PicoClaw": {
+    "website": null,
+    "documentation": null
+  },
+  "Agent Zero": {
+    "website": "https://github.com/frdel/agent-zero",
+    "documentation": "https://github.com/frdel/agent-zero"
+  },
+  "IronClaw": {
+    "website": null,
+    "documentation": null
+  },
+  "NullClaw": {
+    "website": null,
+    "documentation": null
+  },
+  "ClawWork": {
+    "website": null,
+    "documentation": null
+  },
+  "CryptoClaw": {
+    "website": null,
+    "documentation": null
+  },
+  "QuantClaw": {
+    "website": null,
+    "documentation": null
+  },
+  "FinClaw": {
+    "website": null,
+    "documentation": null
+  },
+  "Claw16z": {
+    "website": null,
+    "documentation": null
+  },
+  "AgentQuant": {
+    "website": null,
+    "documentation": null
+  },
+  "MarketClaw": {
+    "website": null,
+    "documentation": null
   }
 }
