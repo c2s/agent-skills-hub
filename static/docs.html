@@ -105,9 +105,10 @@ pip install -r requirements.txt</code></pre>
             <h2 data-i18n="docs_mcp_call">MCP / Agent 调用方式</h2>
             <p data-i18n="mcp_intro">Agent 或 MCP 客户端可通过 REST API 调用技能检索服务：</p>
             <h3 data-i18n="mcp_search">搜索技能</h3>
-            <pre><code>curl "https://your-domain/api/v1/skills/search?query=finance&limit=10&category=clawhub"</code></pre>
+            <pre><code>curl "https://your-domain/api/v1/skills/search?query=finance&amp;query=crypto&amp;limit=10&amp;category=clawhub"</code></pre>
             <h3 data-i18n="mcp_categories">获取分类</h3>
-            <pre><code>curl "https://your-domain/api/v1/skills/categories"</code></pre>
+            <pre><code>curl "https://your-domain/api/v1/skills/categories"
+curl "https://your-domain/api/v1/skills/categories?query=finance&amp;query=crypto"</code></pre>
             <h3 data-i18n="mcp_mount">挂载技能</h3>
             <pre><code>curl -X POST "https://your-domain/api/v1/skills/mount?install_uri=skill://github/langchain-ai/finance-tools@main" \
   -H "Content-Type: application/json" \
@@ -150,9 +151,9 @@ python3 skill-cli.py install "skill://github/langchain-ai/finance-tools@main"</c
                 step2_desc: "复制 config.example.yaml 为 config.yaml，填入 database.mysql_dsn，或设置环境变量 MYSQL_DSN。",
                 step3_desc: "启动后访问", step3_and: "和", step3_web: "Web 界面", step3_api: "API 文档", step3_end: "。",
                 th_desc: "描述", th_source: "来源", th_count: "技能数量",
-                api_search_desc: "搜索技能，支持分页和分类过滤",
+                api_search_desc: "搜索技能；不传 query 为全库。支持多 query、分页与分类",
                 api_top100_desc: "获取 Top 100 热度排行",
-                api_categories_desc: "获取各分类及技能数量",
+                api_categories_desc: "各分类技能数；可选 query=（与 search 相同）返回筛选后的数量",
                 api_mount_desc: "挂载/安装技能到 Agent 上下文",
                 mcp_intro: "Agent 或 MCP 客户端可通过 REST API 调用技能检索服务：",
                 mcp_search: "搜索技能", mcp_categories: "获取分类", mcp_mount: "挂载技能",
@@ -168,9 +169,9 @@ python3 skill-cli.py install "skill://github/langchain-ai/finance-tools@main"</c
                 step2_desc: "Copy config.example.yaml to config.yaml and set database.mysql_dsn, or set env var MYSQL_DSN.",
                 step3_desc: "Then visit", step3_and: "and", step3_web: "Web UI", step3_api: "API docs", step3_end: ".",
                 th_desc: "Description", th_source: "Source", th_count: "Skills",
-                api_search_desc: "Search skills (pagination, category filter)",
+                api_search_desc: "Search skills; omit query for full index. Multi-query, pagination, category",
                 api_top100_desc: "Top 100 by popularity",
-                api_categories_desc: "Categories and skill counts",
+                api_categories_desc: "Category counts; optional query= (same as search) for filtered counts",
                 api_mount_desc: "Mount/install skill to Agent context",
                 mcp_intro: "Agents or MCP clients can call the skill registry via REST API:",
                 mcp_search: "Search skills", mcp_categories: "Get categories", mcp_mount: "Mount skill",

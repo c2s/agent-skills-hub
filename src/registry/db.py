@@ -5,7 +5,7 @@ import pymysql.cursors
 import json
 import yaml
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Sequence, Union
 from src.core.schema import SkillMetadata, SkillSource, SourceType, ExecutionMode, SkillMetrics
 
 
@@ -182,19 +182,66 @@ class DBManager:
                 ))
             conn.commit()
 
-    def search_skills(self, query: str, limit: int = 20, offset: int = 0, source_type: Optional[str] = None) -> tuple[List[SkillMetadata], int]:
-        if not query:
+    @staticmethod
+    def _normalize_search_terms(queries: Sequence[str]) -> List[str]:
+        """Flatten comma-separated tokens and strip empties."""
+        out: List[str] = []
+        for q in queries:
+            if q is None:
+                continue
+            for part in str(q).split(","):
+                p = part.strip()
+                if p:
+                    out.append(p)
+        return out
+
+    @staticmethod
+    def _fts_boolean_prefix_string(terms: List[str]) -> Optional[str]:
+        """Build a single BOOLEAN MODE string: term1* term2* … (optional OR-style match)."""
+        parts: List[str] = []
+        for t in terms:
+            safe = re.sub(r'[+\-><()~*:"\']', "", t)
+            if not safe:
+                continue
+            parts.append(f"{safe}*")
+        return " ".join(parts) if parts else None
+
+    @staticmethod
+    def _like_or_where_multi(terms: List[str]) -> tuple[str, List]:
+        """(name LIKE … OR description LIKE …) OR … across terms."""
+        or_chunks: List[str] = []
+        params: List = []
+        for t in terms:
+            pat = f"%{t}%"
+            or_chunks.append("(name LIKE %s OR description LIKE %s)")
+            params.extend([pat, pat])
+        return "(" + " OR ".join(or_chunks) + ")", params
+
+    def search_skills(
+        self,
+        query: Union[str, Sequence[str]],
+        limit: int = 20,
+        offset: int = 0,
+        source_type: Optional[str] = None,
+    ) -> tuple[List[SkillMetadata], int]:
+        if isinstance(query, str):
+            raw: List[str] = [query] if query.strip() else []
+        else:
+            raw = list(query)
+        terms = self._normalize_search_terms(raw)
+        if not terms:
+            return self.get_top_skills(limit, offset, source_type)
+
+        query_fts = self._fts_boolean_prefix_string(terms)
+        if not query_fts:
             return self.get_top_skills(limit, offset, source_type)
 
         with _get_conn() as conn:
             with conn.cursor() as cursor:
-                total = 0
-
                 # 优先使用 MySQL FULLTEXT MATCH AGAINST
                 fts_cond = "MATCH(name, description) AGAINST (%s IN BOOLEAN MODE)"
-                query_fts = f"{query}*"
-                search_params_count = [query_fts]
-                search_params = [query_fts]
+                search_params_count: List = [query_fts]
+                search_params: List = [query_fts]
 
                 source_cond = ""
                 if source_type:
@@ -202,10 +249,9 @@ class DBManager:
                     search_params_count.append(source_type)
                     search_params.append(source_type)
 
-                # 获取 FTS 总数
                 cursor.execute(
                     f"SELECT COUNT(*) as cnt FROM `skills` WHERE {fts_cond}{source_cond}",
-                    search_params_count
+                    search_params_count,
                 )
                 row = cursor.fetchone()
                 total = row["cnt"] if row else 0
@@ -216,21 +262,24 @@ class DBManager:
                         WHERE {fts_cond}{source_cond}
                         ORDER BY downloads DESC
                         LIMIT %s OFFSET %s""",
-                    search_params
+                    search_params,
                 )
                 rows = cursor.fetchall()
 
-                # 兜底：LIKE 模糊匹配
+                # 兜底：LIKE 模糊匹配（多词 OR）
                 if len(rows) < 5:
-                    like_params_count = [f"%{query}%", f"%{query}%"]
-                    like_params = [f"%{query}%", f"%{query}%"]
-                    like_cond = "(name LIKE %s OR description LIKE %s)"
+                    like_cond, like_base_params = self._like_or_where_multi(terms)
+                    like_params_count = list(like_base_params)
+                    like_params = list(like_base_params)
                     if source_type:
                         like_cond += " AND source_type = %s"
                         like_params_count.append(source_type)
                         like_params.append(source_type)
 
-                    cursor.execute(f"SELECT COUNT(*) as cnt FROM `skills` WHERE {like_cond}", like_params_count)
+                    cursor.execute(
+                        f"SELECT COUNT(*) as cnt FROM `skills` WHERE {like_cond}",
+                        like_params_count,
+                    )
                     row = cursor.fetchone()
                     total = row["cnt"] if row else 0
 
@@ -240,11 +289,55 @@ class DBManager:
                             WHERE {like_cond}
                             ORDER BY downloads DESC
                             LIMIT %s OFFSET %s""",
-                        like_params
+                        like_params,
                     )
                     rows = cursor.fetchall()
 
                 return [self._row_to_skill(row) for row in rows], total
+
+    def get_category_counts_for_terms(self, query: Union[str, Sequence[str]]) -> dict[str, int]:
+        """
+        与 search_skills 相同的 FTS / LIKE 判定下，按 source_type 聚合条数（用于筛选后的分类 Tab 数字）。
+        """
+        if isinstance(query, str):
+            raw: List[str] = [query] if query.strip() else []
+        else:
+            raw = list(query)
+        terms = self._normalize_search_terms(raw)
+        if not terms:
+            return self.get_category_counts()
+
+        query_fts = self._fts_boolean_prefix_string(terms)
+        if not query_fts:
+            return self.get_category_counts()
+
+        with _get_conn() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    "SELECT COUNT(*) as cnt FROM `skills` WHERE MATCH(name, description) AGAINST (%s IN BOOLEAN MODE)",
+                    (query_fts,),
+                )
+                ft_total = (cursor.fetchone() or {}).get("cnt") or 0
+                use_like = ft_total < 5
+                if use_like:
+                    like_cond, like_params = self._like_or_where_multi(terms)
+                    cursor.execute(
+                        f"SELECT source_type, COUNT(*) as cnt FROM `skills` WHERE {like_cond} GROUP BY source_type",
+                        like_params,
+                    )
+                else:
+                    cursor.execute(
+                        "SELECT source_type, COUNT(*) as cnt FROM `skills` WHERE MATCH(name, description) AGAINST (%s IN BOOLEAN MODE) GROUP BY source_type",
+                        (query_fts,),
+                    )
+                rows = cursor.fetchall()
+
+        counts = {row["source_type"]: row["cnt"] for row in rows}
+        for cat in ["clawhub", "github", "skills.sh", "smithery", "mcp-market", "awesome-list", "skillsmp"]:
+            if cat not in counts:
+                counts[cat] = 0
+        counts["all"] = sum(v for k, v in counts.items() if k != "all")
+        return counts
 
     def get_top_skills(self, limit: int = 20, offset: int = 0, source_type: Optional[str] = None) -> tuple[List[SkillMetadata], int]:
         with _get_conn() as conn:

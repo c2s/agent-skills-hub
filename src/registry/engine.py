@@ -1,5 +1,5 @@
 import asyncio
-from typing import List, Optional
+from typing import List, Optional, Sequence, Union
 from src.core.schema import SkillMetadata
 from src.registry.db import DBManager
 from src.registry.sync_manager import SyncManager
@@ -12,9 +12,16 @@ class RetrievalEngine:
         self.db = DBManager()
         self.sync_manager = SyncManager()
         
-    async def search(self, query: str, limit: int = 20, offset: int = 0, source_type: Optional[str] = None) -> tuple[List[SkillMetadata], int]:
+    async def search(
+        self,
+        query: Union[str, Sequence[str]],
+        limit: int = 20,
+        offset: int = 0,
+        source_type: Optional[str] = None,
+    ) -> tuple[List[SkillMetadata], int]:
         """
         从本地全量索引中检索，支持分页和分类过滤。
+        query 可为单个字符串、字符串序列；每项支持逗号分隔多词。
         """
         return self.db.search_skills(query, limit=limit, offset=offset, source_type=source_type)
 
@@ -25,6 +32,10 @@ class RetrievalEngine:
     async def get_category_counts(self) -> dict[str, int]:
         """获取各分类下的技能数量"""
         return self.db.get_category_counts()
+
+    async def get_category_counts_for_terms(self, query: Union[str, Sequence[str]]) -> dict[str, int]:
+        """在关键词筛选条件下各分类条数（与 search 的 FTS/LIKE 规则一致）"""
+        return self.db.get_category_counts_for_terms(query)
 
     def get_categories(self) -> List[str]:
         return self.db.get_all_categories()

@@ -992,6 +992,21 @@
 
     <script>
         let currentQuery = "";
+        /** 首页搜索框为空时传给后端的默认金融/Web3 关键词（与接口「空=全库」分离，仅前端默认筛选） */
+        const DEFAULT_HOME_SEARCH_TERMS = [
+            "market", "stock", "buy", "sell", "finance", "crypto", "news", "order",
+            "liquidity", "volatility", "margin", "blockchain", "btc", "eth", "wallet",
+            "token", "coin", "exchange", "defi", "staking", "gas", "airdrop", "whale", "web3",
+        ];
+
+        function searchQueryParamsForApi() {
+            const q = (currentQuery || "").trim();
+            if (!q) {
+                return DEFAULT_HOME_SEARCH_TERMS.map((t) => "query=" + encodeURIComponent(t)).join("&");
+            }
+            return "query=" + encodeURIComponent(q);
+        }
+
         let currentCategory = "all";
         let currentPage = 1;
         const limit = 12;
@@ -1161,7 +1176,7 @@
         async function loadCategoryTabs() {
             const container = document.getElementById('categoryTabs');
             try {
-                const res = await fetch('/api/v1/skills/categories');
+                const res = await fetch("/api/v1/skills/categories?" + searchQueryParamsForApi());
                 const data = await res.json();
 
                 container.innerHTML = data.map(cat => {
@@ -1193,7 +1208,7 @@
 
             try {
                 const offset = (currentPage - 1) * limit;
-                const url = `/api/v1/skills/search?query=${encodeURIComponent(currentQuery)}&category=${currentCategory}&limit=${limit}&offset=${offset}`;
+                const url = `/api/v1/skills/search?${searchQueryParamsForApi()}&category=${encodeURIComponent(currentCategory)}&limit=${limit}&offset=${offset}`;
                 const res = await fetch(url);
                 const data = await res.json();
 
@@ -1465,7 +1480,10 @@
             currentQuery = e.target.value;
             currentPage = 1;
             clearTimeout(window.searchTimer);
-            window.searchTimer = setTimeout(fetchSkills, 500);
+            window.searchTimer = setTimeout(() => {
+                loadCategoryTabs();
+                fetchSkills();
+            }, 500);
         });
 
         document.querySelectorAll('.tab').forEach(b => {

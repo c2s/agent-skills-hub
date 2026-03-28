@@ -2,7 +2,7 @@ import time
 from fastapi import FastAPI, HTTPException, Depends, Query
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
-from typing import List, Dict, Any, Optional, Tuple
+from typing import List, Dict, Any, Optional, Tuple, Annotated
 from src.core.schema import SkillMetadata
 from src.registry.engine import RetrievalEngine
 from src.registry.agent_list_loader import load_agents
@@ -30,6 +30,20 @@ def _cache_set(key: str, data: Any) -> None:
 class SkillSearchResponse(BaseModel):
     total: int
     results: List[SkillMetadata]
+
+
+def _flatten_query_params(query: Optional[List[str]]) -> List[str]:
+    if not query:
+        return []
+    out: List[str] = []
+    for q in query:
+        if q is None:
+            continue
+        for part in str(q).split(","):
+            p = part.strip()
+            if p:
+                out.append(p)
+    return out
 
 
 class AgentRegistryRecord(BaseModel):
@@ -83,16 +97,28 @@ async def agent_detail_page():
     return FileResponse("static/agent-detail.html")
 
 @app.get("/api/v1/skills/search", response_model=SkillSearchResponse)
-async def search_skills(query: str = "", limit: int = 20, offset: int = 0, category: str = "all"):
+async def search_skills(
+    query: Annotated[
+        Optional[List[str]],
+        Query(
+            description="搜索词；可重复 query=a&query=b 或 query=a,b,c。缺省或全空则不做关键词筛选（全库按下载量分页）",
+        ),
+    ] = None,
+    limit: int = 20,
+    offset: int = 0,
+    category: str = "all",
+):
     """
-    Agent 或 Web 发起搜索，支持分页和分类过滤（缓存 5 分钟）
+    Agent 或 Web 发起搜索，支持多关键词、分页和分类过滤（缓存 5 分钟）。
+    未传 query 或均为空时返回全库排序结果（不按关键词过滤）。
     """
-    cache_key = f"search:{query}:{category}:{limit}:{offset}"
+    flat = _flatten_query_params(query)
+    cache_key = f"search:{','.join(flat)}:{category}:{limit}:{offset}"
     cached = _cache_get(cache_key)
     if cached is not None:
         return cached
     source_type = category if category != "all" else None
-    results, total = await engine.search(query, limit=limit, offset=offset, source_type=source_type)
+    results, total = await engine.search(flat, limit=limit, offset=offset, source_type=source_type)
     resp = {"results": results, "total": total}
     _cache_set(cache_key, resp)
     return resp
@@ -143,13 +169,24 @@ async def get_agent_registry(agent_id: int, lang: str = Query("zh", description=
 
 
 @app.get("/api/v1/skills/categories")
-async def get_categories():
-    """分类及技能数量（缓存 5 分钟）"""
-    cache_key = "categories"
+async def get_categories(
+    query: Annotated[
+        Optional[List[str]],
+        Query(
+            description="可选，与 /skills/search 相同；传入时返回该关键词筛选下各分类条数，不传则为全库统计",
+        ),
+    ] = None,
+):
+    """分类及技能数量（缓存 5 分钟）；带 query 时与搜索筛选一致"""
+    flat = _flatten_query_params(query)
+    cache_key = f"categories:{','.join(flat)}"
     cached = _cache_get(cache_key)
     if cached is not None:
         return cached
-    counts = await engine.get_category_counts()
+    if flat:
+        counts = await engine.get_category_counts_for_terms(flat)
+    else:
+        counts = await engine.get_category_counts()
     result = [{"name": "all", "count": counts.get("all", 0)}]
     others = [(cat, counts[cat]) for cat in counts if cat != "all"]
     others.sort(key=lambda x: x[1], reverse=True)
